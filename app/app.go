@@ -7,8 +7,8 @@ import (
 	datasource "github.com/jimersylee/iris-seed/datasources"
 	"github.com/jimersylee/iris-seed/repositories"
 	"github.com/jimersylee/iris-seed/services"
+	"github.com/jimersylee/iris-seed/web/frontend"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/_examples/mvc/login/web/controllers"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
 	"github.com/kataras/iris/mvc"
@@ -54,12 +54,12 @@ func initIris() *iris.Application {
 	})
 
 	// Load the template files.
-	tmpl := iris.HTML("./web/views", ".html").
+	tmpl := iris.HTML("../web/views", ".html").
 		Layout("shared/layout.html").
 		Reload(true)
 	app.RegisterView(tmpl)
 
-	app.StaticWeb("/public", "./web/public")
+	app.StaticWeb("/public", "../web/public")
 
 	return app
 }
@@ -112,7 +112,7 @@ func initRouter(app *iris.Application) {
 		userService,
 		sessManager.Start,
 	)
-	user.Handle(new(controllers.UserController))
+	user.Handle(new(frontend.UserController))
 
 	// http://localhost:8080/noexist
 	// and all controller's methods like
