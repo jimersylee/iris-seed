@@ -1,8 +1,8 @@
 package datasource
 
 import (
-	"errors"
 	"github.com/jimersylee/iris-seed/datamodels"
+	"github.com/jinzhu/gorm"
 )
 
 //引擎来自何处获取数据，在这种情况下是用户。
@@ -18,10 +18,20 @@ const (
 	MySQL
 )
 
-//为了简单起见，Load Users从内存中返回所有用户（空map）。
-func LoadUsers(engine Engine) (map[int64]datamodels.User, error) {
-	if engine != Memory {
-		return nil, errors.New("for the shake of simplicity we're using a simple map as the data source")
+var UserRepository = newUserRepository()
+
+func newUserRepository() *userRepository {
+	return &userRepository{}
+}
+
+type userRepository struct {
+}
+
+//根据id找用户
+func (this *userRepository) Get(db *gorm.DB, id int64) *datamodels.Users {
+	ret := &datamodels.Users{}
+	if err := db.First(ret, "id = ?", id).Error; err != nil {
+		return nil
 	}
-	return make(map[int64]datamodels.User), nil
+	return ret
 }

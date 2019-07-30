@@ -3,9 +3,9 @@ package frontend
 import (
 	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/services"
+	"github.com/jimersylee/iris-seed/utils/session"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
-	"github.com/kataras/iris/sessions"
 )
 
 // UserController是我们的/用户控制器。
@@ -25,27 +25,22 @@ type UserController struct {
 	Ctx iris.Context
 	//我们的UserService，它是一个接口
 	//从主应用程序绑定。
-	Service services.UserService
-	//Session，使用来自main.go的依赖注入绑定
-	Session *sessions.Session
 }
 
-const userIDKey = "UserID"
-
 func (c *UserController) getCurrentUserID() int64 {
-	userID := c.Session.GetInt64Default(userIDKey, 0)
+	userID := session.GetCurrentUser(c.Ctx)
 	return userID
 }
 func (c *UserController) isLoggedIn() bool {
 	return c.getCurrentUserID() > 0
 }
 func (c *UserController) logout() {
-	c.Session.Destroy()
+	session.DelCurrentUser(c.Ctx)
 }
 
 var registerStaticView = mvc.View{
 	Name: "user/register.html",
-	Data: iris.Map{"Title": "User Registration"},
+	Data: iris.Map{"Title": "Users Registration"},
 }
 
 // GetRegister 处理 GET: http://localhost:8080/user/register.
@@ -60,19 +55,17 @@ func (c *UserController) GetRegister() mvc.Result {
 func (c *UserController) PostRegister() mvc.Result {
 	//从表单中获取名字，用户名和密码
 	var (
-		firstname = c.Ctx.FormValue("firstname")
-		username  = c.Ctx.FormValue("username")
-		password  = c.Ctx.FormValue("password")
+		username = c.Ctx.FormValue("username")
+		password = c.Ctx.FormValue("password")
 	)
 	//创建新用户，密码将由服务进行哈希处理
-	u, err := c.Service.Create(password, datamodels.User{
-		Username:  username,
-		Firstname: firstname,
+	u, err := services.UserService.Create(password, datamodels.Users{
+		Name: username,
 	})
 	//将用户的id设置为此会话，即使err！= nil，
 	//零id无关紧要因为.getCurrentUserID()检查它。
 	//如果错误！= nil那么它将被显示，见下面的mvc.Response.Err：err
-	c.Session.Set(userIDKey, u.ID)
+	session.SetCurrentUser(c.Ctx, u.ID)
 	return mvc.Response{
 		//如果不是nil，则会显示此错误
 		Err: err,
@@ -89,7 +82,7 @@ func (c *UserController) PostRegister() mvc.Result {
 
 var loginStaticView = mvc.View{
 	Name: "user/login.html",
-	Data: iris.Map{"Title": "User Login"},
+	Data: iris.Map{"Title": "Users Login"},
 }
 
 // GetLogin handles GET: http://localhost:8080/user/login.
@@ -108,13 +101,13 @@ func (c *UserController) PostLogin() mvc.Result {
 		username = c.Ctx.FormValue("username")
 		password = c.Ctx.FormValue("password")
 	)
-	u, found := c.Service.GetByUsernameAndPassword(username, password)
+	user, found := services.UserService.GetByUsernameAndPassword(username, password)
 	if !found {
 		return mvc.Response{
 			Path: "/user/register",
 		}
 	}
-	c.Session.Set(userIDKey, u.ID)
+	session.SetCurrentUser(c.Ctx, user.ID)
 	return mvc.Response{
 		Path: "/user/me",
 	}
@@ -126,8 +119,8 @@ func (c *UserController) GetMe() mvc.Result {
 		//如果没有登录，则将用户重定向到登录页面。
 		return mvc.Response{Path: "/user/login"}
 	}
-	u, found := c.Service.GetByID(c.getCurrentUserID())
-	if !found {
+	u := services.UserService.GetByID(c.getCurrentUserID())
+	if u == nil {
 		//如果session存在但由于某种原因用户不存在于“数据库”中
 		//然后注销并重新执行该函数，它会将客户端重定向到
 		// /user/login页面。
@@ -137,8 +130,8 @@ func (c *UserController) GetMe() mvc.Result {
 	return mvc.View{
 		Name: "user/me.html",
 		Data: iris.Map{
-			"Title": "Profile of " + u.Username,
-			"User":  u,
+			"Title": "Profile of " + u.Name,
+			"Users": u,
 		},
 	}
 }

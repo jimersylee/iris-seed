@@ -15,3 +15,11 @@ vditor (https://github.com/b3log/vditor) Markdown 编辑器
 go get -u github.com/kataras/rizla
 rizla main.go
 ```
+
+
+# 功能
+- [x] 注册登录
+- [ ] 管理后台
+- [ ] redis缓存整合
+- [ ] rocketmq 队列整合
+- [ ] mongo整合

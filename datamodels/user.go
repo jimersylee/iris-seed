@@ -6,23 +6,26 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// User is our User example model.
+// Users is our Users example model.
 // Keep note that the tags for public-use (for our web app)
 // should be kept in other file like "web/viewmodels/user.go"
-// which could wrap by embedding the datamodels.User or
+// which could wrap by embedding the datamodels.Users or
 // define completely new fields instead but for the shake
 // of the example, we will use this datamodel
-// as the only one User model in our application.
-type User struct {
-	ID             int64     `json:"id" form:"id"`
-	Firstname      string    `json:"firstname" form:"firstname"`
-	Username       string    `json:"username" form:"username"`
-	HashedPassword []byte    `json:"-" form:"-"`
-	CreatedAt      time.Time `json:"created_at" form:"created_at"`
+// as the only one Users model in our application.
+type Users struct {
+	ID              int64  `json:"id" form:"id"`
+	Name            string `json:"name" form:"name"`
+	Email           string
+	EmailVerifiedAt time.Time
+	Password        string
+	RememberToken   string
+	CreatedAt       time.Time `json:"created_at" form:"created_at"`
+	UpdateAt        time.Time
 }
 
 // IsValid can do some very very simple "low-level" data validations.
-func (u User) IsValid() bool {
+func (u Users) IsValid() bool {
 	return u.ID > 0
 }
 
