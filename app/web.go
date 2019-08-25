@@ -29,7 +29,7 @@ func RunApp() {
 	initDataSource(app)
 	session.InitSessionManager()
 
-	_ = app.Run(iris.Addr(":10002"), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)
+	_ = app.Run(iris.Addr(":"+config.Conf.Port), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)
 }
 
 func initConfig() {
