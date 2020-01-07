@@ -4,11 +4,13 @@ import (
 	context2 "context"
 	"github.com/go-session/redis"
 	"github.com/go-session/session"
+	"github.com/jimersylee/iris-seed/commons/redis_manager"
 	"github.com/jimersylee/iris-seed/config"
+	"github.com/jimersylee/iris-seed/services/cache"
 	"github.com/kataras/iris/context"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"strconv"
+	"time"
 )
 
 const (
@@ -30,7 +32,6 @@ func InitTokenManager() {
 		session.SetEnableSIDInHTTPHeader(false),
 	)
 
-
 }
 
 func Start(ctx context.Context) session.Store {
@@ -45,39 +46,26 @@ func StartByRequest(w http.ResponseWriter, r *http.Request) session.Store {
 	return store
 }
 
-func SetApiCurrentUser(ctx context.Context, userId int64) {
-	store := Start(ctx)
-	store.Set(ApiCurrentUser, strconv.FormatInt(userId, 10))
-	err := store.Save()
-	if err != nil {
-		logrus.Error(err)
-	}
+func SetApiCurrentUser(token string, userId int64) {
+	redis_manager.GetClient().Set(token, userId, 10*time.Minute)
 }
 
 func GetApiCurrentUser(ctx context.Context) int64 {
-	return GetApiCurrentUserByRequest(ctx.ResponseWriter(), ctx.Request())
+	return GetApiCurrentUserByRequest(ctx.Request())
 }
 
-func GetApiCurrentUserByRequest(w http.ResponseWriter, r *http.Request) int64 {
-	val, exists := StartByRequest(w, r).Get(ApiCurrentUser)
-	if exists {
-		switch val.(type) {
-		case string:
-			userId, err := strconv.ParseInt(val.(string), 10, 64)
-			if err != nil {
-				return 0
-			}
-			return userId
-		}
+func GetApiCurrentUserByRequest(r *http.Request) int64 {
+	token := r.Header.Get("X-USER-TOKEN")
+	logrus.Info("token:" + token)
+	if len(token) <= 0 {
+		return 0
 	}
-	return 0
+	//有token,根据token去查用户
+	userId := cache.UserTokenCache.GetUserIdByToken(token)
+	return userId
 }
 
 func DelApiCurrentUser(ctx context.Context) {
-	store := Start(ctx)
-	store.Delete(ApiCurrentUser)
-	err := store.Save()
-	if err != nil {
-		logrus.Error(err)
-	}
+	token := ctx.GetHeader("X-USER-TOKEN")
+	cache.UserTokenCache.Delete(token)
 }

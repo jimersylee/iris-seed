@@ -1,9 +1,11 @@
 package services
 
 import (
+	uuid "github.com/iris-contrib/go.uuid"
 	"github.com/jimersylee/iris-seed/commons/db"
 	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/repositories"
+	"strings"
 )
 
 //UserTokenService处理用户数据模型的CRUID操作，
@@ -39,4 +41,16 @@ func (s *UserTokenServiceImpl) DeleteByID(id int64) bool {
 
 func (s *UserTokenServiceImpl) GetByID(id int64) *datamodels.UserToken {
 	return s.repo.FindOne(db.GetDB(), id)
+}
+
+func (s *UserTokenServiceImpl) UpdateToken(id int64) string {
+	token := s.generateToken(id)
+	return token
+}
+
+func (s *UserTokenServiceImpl) generateToken(id int64) string {
+	u, _ := uuid.NewV4()
+	str := u.String()
+	str = strings.Replace(str, "-", "", -1)
+	return str
 }

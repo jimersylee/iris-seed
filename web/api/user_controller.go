@@ -2,11 +2,12 @@ package api
 
 import (
 	"github.com/jimersylee/iris-seed/commons"
-	"github.com/jimersylee/iris-seed/commons/web_session"
+	"github.com/jimersylee/iris-seed/commons/api_token"
 	"github.com/jimersylee/iris-seed/datamodels"
+	"github.com/jimersylee/iris-seed/entities"
 	"github.com/jimersylee/iris-seed/services"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/mvc"
+	"github.com/sirupsen/logrus"
 )
 
 // UserController是我们的/用户控制器。
@@ -17,7 +18,7 @@ import (
 // POST             /user/login
 // GET                 /user/me
 //所有HTTP方法 /user/logout
-type ApiUserController struct {
+type UserController struct {
 	//每个请求都由Iris自动绑定上下文，
 	//记住，每次传入请求时，iris每次都会创建一个新的UserController，
 	//所以所有字段都是默认的请求范围，只能设置依赖注入
@@ -28,32 +29,19 @@ type ApiUserController struct {
 	//从主应用程序绑定。
 }
 
-func (c *ApiUserController) getCurrentUserID() int64 {
-	userID := web_session.GetCurrentUser(c.Ctx)
-	return userID
+func (c *UserController) getCurrentUserID() int64 {
+	userId := api_token.GetApiCurrentUser(c.Ctx)
+	return userId
 }
-func (c *ApiUserController) isLoggedIn() bool {
+func (c *UserController) isLoggedIn() bool {
 	return c.getCurrentUserID() > 0
 }
-func (c *ApiUserController) logout() {
-	web_session.DelCurrentUser(c.Ctx)
-}
-
-var registerStaticView = mvc.View{
-	Name: "user/register.html",
-	Data: iris.Map{"Title": "User Registration"},
-}
-
-// GetRegister 处理 GET: http://localhost:17001/user/register.
-func (c *ApiUserController) GetRegister() mvc.Result {
-	if c.isLoggedIn() {
-		c.logout()
-	}
-	return registerStaticView
+func (c *UserController) logout() {
+	api_token.DelApiCurrentUser(c.Ctx)
 }
 
 // PostRegister 处理 POST: http://localhost:17001/user/register.
-func (c *ApiUserController) PostRegister() mvc.Result {
+func (c *UserController) PostRegister() *commons.WebApiResult {
 	//从表单中获取名字，用户名和密码
 	var (
 		username = c.Ctx.FormValue("username")
@@ -63,65 +51,55 @@ func (c *ApiUserController) PostRegister() mvc.Result {
 	u, err := services.UserService.Create(password, datamodels.User{
 		Name: username,
 	})
-	//将用户的id设置为此会话，即使err！= nil，
-	//零id无关紧要因为.getCurrentUserID()检查它。
-	//如果错误！= nil那么它将被显示，见下面的mvc.Response.Err：err
-	web_session.SetCurrentUser(c.Ctx, u.ID)
-	return mvc.Response{
-		//如果不是nil，则会显示此错误
-		Err: err,
-		//从定向 /user/me.
-		Path: "/user/me",
-		//当从POST重定向到GET请求时，您应该使用此HTTP状态代码，
-		//但是如果你有一些（复杂的）选择
-		//在线搜索甚至是HTTP RFC。
-		//状态“查看其他”RFC 7231，但虹膜可以自动修复它
-		//但很高兴知道你可以设置自定义代码;
-		//代码：303，
+	if err != nil {
+		return commons.JsonErrorMsg(err.Error())
 	}
-}
+	return commons.JsonData(u)
 
-var loginStaticView = mvc.View{
-	Name: "user/login.html",
-	Data: iris.Map{"Title": "User Login"},
 }
 
 // PostLogin handles
 // PostLogin处理POST: http://localhost:17001/user/register.
-func (c *ApiUserController) PostLogin() *commons.WebApiResult {
+func (c *UserController) PostLogin() *commons.WebApiResult {
 	var (
-		username = c.Ctx.FormValue("username")
-		password = c.Ctx.FormValue("password")
+	//username = c.Ctx.FormValue("username")
+	//password = c.Ctx.FormValue("password")
+
 	)
-	user, found := services.UserService.GetByUsernameAndPassword(username, password)
+	ee := &entities.LoginDTO{}
+	err := c.Ctx.ReadJSON(ee)
+	if err != nil {
+		commons.JsonErrorMsg("解析错误")
+	}
+	user, found := services.UserService.GetByUsernameAndPassword(ee.Username, ee.Password)
+	logrus.Info("username:"+ee.Username)
 	if !found {
 		return commons.JsonErrorCode(111, "账号未找到")
-
 	}
-	web_session.SetCurrentUser(c.Ctx, user.ID)
-	return commons.JsonData(1111)
+	token := services.UserTokenService.UpdateToken(user.ID)
+	api_token.SetApiCurrentUser(token, user.ID)
+	return commons.JsonData(token)
 }
 
 // GetMe 处理P GET: http://localhost:17001/user/me.
-func (c *ApiUserController) GetMe() {
+func (c *UserController) GetMe() *commons.WebApiResult {
 	if !c.isLoggedIn() {
 		//如果没有登录，则将用户重定向到登录页面。
-
+		return commons.JsonErrorMsg("未登录")
 	}
 	u := services.UserService.GetByID(c.getCurrentUserID())
 	if u == nil {
 		//如果session存在但由于某种原因用户不存在于“数据库”中
 		//然后注销并重新执行该函数，它会将客户端重定向到
 		// /user/login页面。
-		c.logout()
+		return commons.JsonErrorCode(404, "未找到用户")
 	}
+	return commons.JsonData(u)
 
 }
 
 // AnyLogout处理 All/AnyHTTP 方法：http://localhost:17001/user/logout
-func (c *ApiUserController) AnyLogout() {
-	if c.isLoggedIn() {
-		c.logout()
-	}
-	c.Ctx.Redirect("/user/login")
+func (c *UserController) AnyLogout() *commons.WebApiResult {
+	c.logout()
+	return commons.JsonSuccess()
 }

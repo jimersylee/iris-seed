@@ -25,34 +25,12 @@ func JsonData(data interface{}) *WebApiResult {
 	}
 }
 
-func JsonPageData(results interface{}, page *Paging) *WebApiResult {
-	return JsonData(&PageResult{
-		Results: results,
-		Page:    page,
-	})
-}
-
-func JsonCursorData(results interface{}, cursor string) *WebApiResult {
-	return JsonData(&CursorResult{
-		Results: results,
-		Cursor:  cursor,
-	})
-}
 
 func JsonSuccess() *WebApiResult {
 	return &WebApiResult{
 		ErrorCode: 0,
 		Data:      nil,
 		Success:   true,
-	}
-}
-
-func JsonError(err *CodeError) *WebApiResult {
-	return &WebApiResult{
-		ErrorCode: err.Code,
-		Message:   err.Message,
-		Data:      err.Data,
-		Success:   false,
 	}
 }
 
@@ -91,13 +69,9 @@ func NewEmptyRspBuilder() *RspBuilder {
 	return &RspBuilder{Data: make(map[string]interface{})}
 }
 
-func NewRspBuilder(obj interface{}) *RspBuilder {
-	return NewRspBuilderExcludes(obj)
-}
 
-func NewRspBuilderExcludes(obj interface{}, excludes ...string) *RspBuilder {
-	return &RspBuilder{Data: StructToMap(obj, excludes...)}
-}
+
+
 
 func (this *RspBuilder) Put(key string, value interface{}) *RspBuilder {
 	this.Data[key] = value

@@ -18,12 +18,12 @@ type Config struct {
 	StaticPath     string `yaml:"StaticPath"`     // 静态文件路径
 
 	MySqlUrl  string `yaml:"MySqlUrl"`  // 数据库连接地址
-	RedisAddr string `yaml:"RedisAddr"` // redis
+	RedisAddr string `yaml:"RedisAddr"` // redis_manager
 
-	// redis
+	// redis_manager
 	Redis struct {
 		Addr     string `yaml:"Addr"`     // redis链接
-		Password string `yaml:"Password"` // redis 密码
+		Password string `yaml:"Password"` // redis_manager 密码
 	} `yaml:"Redis"`
 
 	// oauth server

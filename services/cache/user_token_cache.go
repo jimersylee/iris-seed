@@ -1,46 +1,46 @@
 package cache
 
 import (
-	"github.com/goburrow/cache"
-	"github.com/jimersylee/iris-seed/commons/db"
-	"github.com/jimersylee/iris-seed/datamodels"
-	"github.com/jimersylee/iris-seed/repositories"
-	"time"
+	"github.com/go-redis/redis/v7"
+	"github.com/jimersylee/iris-seed/commons/redis_manager"
+	"github.com/sirupsen/logrus"
 )
 
-var UserTokenCache = newUserTokenCache()
-
-type userTokenCache struct {
-	cache cache.LoadingCache
-}
+var UserTokenCache *userTokenCache
 
 func newUserTokenCache() *userTokenCache {
-	return &userTokenCache{
-		cache: cache.NewLoadingCache(
-			func(key cache.Key) (value cache.Value, e error) {
-				value = repositories.UserTokenRepository.FindByToken(db.GetDB(), key.(string))
-				return
-			},
-			cache.WithMaximumSize(1000),
-			cache.WithExpireAfterAccess(60*time.Minute),
-		),
-	}
+	client := redis_manager.GetClient()
+	return &userTokenCache{redisClient: client}
 }
 
-func (this *userTokenCache) Get(token string) *datamodels.UserToken {
+type userTokenCache struct {
+	redisClient *redis.Client
+}
+
+func (this *userTokenCache) GetUserIdByToken(token string) int64 {
+	if UserTokenCache == nil {
+		this = newUserTokenCache()
+	}
 	if len(token) == 0 {
-		return nil
+		return 0
 	}
-	val, err := this.cache.Get(token)
+	tokeneee := this.redisClient.Get(token)
+	if tokeneee == nil {
+		return 0
+	}
+	userId, err := tokeneee.Int64()
 	if err != nil {
-		return nil
+		return 0
 	}
-	if val != nil {
-		return val.(*datamodels.UserToken)
-	}
-	return nil
+
+	return userId
+
 }
 
-func (this *userTokenCache) Invalidate(token string) {
-	this.cache.Invalidate(token)
+func (this *userTokenCache) Delete(token string) {
+	if UserTokenCache == nil {
+		this = newUserTokenCache()
+	}
+	logrus.Info("token:" + token)
+	this.redisClient.Del(token)
 }

@@ -7,11 +7,11 @@ import (
 	"github.com/iris-contrib/middleware/prometheus"
 	"github.com/jimersylee/iris-seed/commons/api_token"
 	"github.com/jimersylee/iris-seed/commons/db"
+	"github.com/jimersylee/iris-seed/commons/redis_manager"
 	"github.com/jimersylee/iris-seed/commons/web_session"
 	"github.com/jimersylee/iris-seed/config"
 	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/web/api"
-	"github.com/jimersylee/iris-seed/web/frontend"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
@@ -29,6 +29,7 @@ func RunApp() {
 	initDoc(app)
 	initRouter(app)
 	initDataSource(app)
+	redis_manager.InitRedisManager()
 	//初始化web session管理
 	web_session.InitSessionManager()
 	//初始化api token 管理
@@ -110,10 +111,10 @@ func initRouter(app *iris.Application) {
 	app.Get("/metrics", iris.FromStd(promhttp.Handler()))
 
 	// "/user" based mvc application.
-	user := mvc.New(app.Party("/user"))
-	user.Handle(new(frontend.UserController))
+	//user := mvc.New(app.Party("/user"))
+	//user.Handle(new(frontend.UserController))
 	apiUser := mvc.New(app.Party("/api/user"))
-	apiUser.Handle(new(api.ApiUserController))
+	apiUser.Handle(new(api.UserController))
 
 	// http://localhost:17001/noexist
 	// and all controller's methods like
