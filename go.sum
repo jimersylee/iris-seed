@@ -58,15 +58,11 @@ github.com/go-check/check v1.0.0-20180628173108-788fd7840127/go.mod h1:9ES+weclK
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
 github.com/go-martini/martini v0.0.0-20170121215854-22fa46961aab/go.mod h1:/P9AEU963A2AYjv4d1V5eVL1CQbEJq6aCNHDDjibzu8=
-github.com/go-redis/redis v6.15.3+incompatible h1:NZ0O90AhLSvSrvLZ/S9h7D4kl1mW2PrKyxL7MyBKO2g=
-github.com/go-redis/redis v6.15.3+incompatible/go.mod h1:W2YCLaZryXHirdd9QqwkiVUxCQsrx8SbLq9Uqk7JS7A=
-github.com/go-session/redis v3.0.1+incompatible h1:x9dKz97/WtvHe3yCyrbrJhFCKnWQK9bF1N/0GxLOEek=
-github.com/go-session/redis v3.0.1+incompatible/go.mod h1:fI1JsUaQJjwbX7pPc9mQhKSXWmURT1oDNN5LjJpetIc=
-github.com/go-session/session v3.1.2+incompatible h1:yStchEObKg4nk2F7JGE7KoFIrA/1Y078peagMWcrncg=
-github.com/go-session/session v3.1.2+incompatible/go.mod h1:8B3iivBQjrz/JtC68Np2T1yBBLxTan3mn/3OM0CyRt0=
 github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZpNwpA=
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
+github.com/goburrow/cache v0.1.0 h1:fLNGLIWhng4Vw3AjbafHou7R3M5wiaz2tMhg6aFkqXM=
+github.com/goburrow/cache v0.1.0/go.mod h1:8oxkfud4hvjO4tNjEKZfEd+LrpDVDlBIauGYsWGEzio=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=

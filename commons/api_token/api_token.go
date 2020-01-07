@@ -1,4 +1,4 @@
-package session
+package api_token
 
 import (
 	context2 "context"
@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	CurrentUser = "CurrentUser"
+	ApiCurrentUser = "ApiCurrentUser"
 )
 
-func InitSessionManager() {
+func InitTokenManager() {
 	if config.Conf.RedisAddr != "" {
 		config.Conf.Redis.Addr = config.Conf.RedisAddr
 	}
@@ -29,6 +29,8 @@ func InitSessionManager() {
 		session.SetEnableSIDInURLQuery(false),
 		session.SetEnableSIDInHTTPHeader(false),
 	)
+
+
 }
 
 func Start(ctx context.Context) session.Store {
@@ -43,21 +45,21 @@ func StartByRequest(w http.ResponseWriter, r *http.Request) session.Store {
 	return store
 }
 
-func SetCurrentUser(ctx context.Context, userId int64) {
+func SetApiCurrentUser(ctx context.Context, userId int64) {
 	store := Start(ctx)
-	store.Set(CurrentUser, strconv.FormatInt(userId, 10))
+	store.Set(ApiCurrentUser, strconv.FormatInt(userId, 10))
 	err := store.Save()
 	if err != nil {
 		logrus.Error(err)
 	}
 }
 
-func GetCurrentUser(ctx context.Context) int64 {
-	return GetCurrentUserByRequest(ctx.ResponseWriter(), ctx.Request())
+func GetApiCurrentUser(ctx context.Context) int64 {
+	return GetApiCurrentUserByRequest(ctx.ResponseWriter(), ctx.Request())
 }
 
-func GetCurrentUserByRequest(w http.ResponseWriter, r *http.Request) int64 {
-	val, exists := StartByRequest(w, r).Get(CurrentUser)
+func GetApiCurrentUserByRequest(w http.ResponseWriter, r *http.Request) int64 {
+	val, exists := StartByRequest(w, r).Get(ApiCurrentUser)
 	if exists {
 		switch val.(type) {
 		case string:
@@ -66,15 +68,14 @@ func GetCurrentUserByRequest(w http.ResponseWriter, r *http.Request) int64 {
 				return 0
 			}
 			return userId
-			break
 		}
 	}
 	return 0
 }
 
-func DelCurrentUser(ctx context.Context) {
+func DelApiCurrentUser(ctx context.Context) {
 	store := Start(ctx)
-	store.Delete(CurrentUser)
+	store.Delete(ApiCurrentUser)
 	err := store.Save()
 	if err != nil {
 		logrus.Error(err)

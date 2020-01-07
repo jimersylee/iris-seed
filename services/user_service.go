@@ -2,9 +2,9 @@ package services
 
 import (
 	"errors"
+	"github.com/jimersylee/iris-seed/commons/db"
 	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/repositories"
-	"github.com/jimersylee/iris-seed/utils/db"
 )
 
 //UserService处理用户数据模型的CRUID操作，
@@ -14,14 +14,14 @@ import (
 //它是一个接口，它在任何地方都被用作接口
 //因为我们可能需要在将来更改或尝试实验性的不同域逻辑。
 type UserServiceInterface interface {
-	GetAll() []datamodels.Users
-	GetByID(id int64) datamodels.Users
-	GetByUsernameAndPassword(username, userPassword string) (datamodels.Users, bool)
+	GetAll() []datamodels.User
+	GetByID(id int64) datamodels.User
+	GetByUsernameAndPassword(username, userPassword string) (datamodels.User, bool)
 	DeleteByID(id int64) bool
-	Update(id int64, user datamodels.Users) (datamodels.Users, error)
-	UpdatePassword(id int64, newPassword string) (datamodels.Users, error)
-	UpdateUsername(id int64, newUsername string) (datamodels.Users, error)
-	Create(userPassword string, user datamodels.Users) (datamodels.Users, error)
+	Update(id int64, user datamodels.User) (datamodels.User, error)
+	UpdatePassword(id int64, newPassword string) (datamodels.User, error)
+	UpdateUsername(id int64, newUsername string) (datamodels.User, error)
+	Create(userPassword string, user datamodels.User) (datamodels.User, error)
 }
 
 var UserService = NewUserService(repositories.NewUserRepository())
@@ -38,41 +38,41 @@ type userServiceImpl struct {
 }
 
 // GetAll返回所有用户。
-func (s *userServiceImpl) GetAll() []datamodels.Users {
-	return s.repo.SelectMany(func(_ datamodels.Users) bool {
+func (s *userServiceImpl) GetAll() []datamodels.User {
+	return s.repo.SelectMany(func(_ datamodels.User) bool {
 		return true
 	}, -1)
 }
 
 // GetByID根据其id返回用户。
-func (s *userServiceImpl) GetByID(id int64) *datamodels.Users {
+func (s *userServiceImpl) GetByID(id int64) *datamodels.User {
 
-	return s.repo.SelectOne(db.GetDB(), id)
+	return s.repo.FindOne(db.GetDB(), id)
 }
 
 //获取yUsernameAndPassword根据用户名和密码返回用户，
 //用于身份验证。
-func (s *userServiceImpl) GetByUsernameAndPassword(username, userPassword string) (datamodels.Users, bool) {
+func (s *userServiceImpl) GetByUsernameAndPassword(username, userPassword string) (datamodels.User, bool) {
 	if username == "" || userPassword == "" {
-		return datamodels.Users{}, false
+		return datamodels.User{}, false
 	}
-	user := s.repo.SelectByUsername(db.GetDB(), username)
+	user := s.repo.FindByToken(db.GetDB(), username)
 	if user != nil {
 		if ok, _ := datamodels.ValidatePassword(userPassword, []byte(user.Password)); ok {
 			return *user, true
 		}
-		return datamodels.Users{}, false
+		return datamodels.User{}, false
 	}
-	return datamodels.Users{}, false
+	return datamodels.User{}, false
 }
 
 //获取yUsernameAndPassword根据用户名和密码返回用户，
 //用于身份验证。
-func (s *userServiceImpl) GetByUsernameAndPassword1(username, userPassword string) (datamodels.Users, bool) {
+func (s *userServiceImpl) GetByUsernameAndPassword1(username, userPassword string) (datamodels.User, bool) {
 	//if username == "" || userPassword == "" {
-	//	return datamodels.Users{}, false
+	//	return datamodels.User{}, false
 	//}
-	//return s.repo.Select(func(m datamodels.Users) bool {
+	//return s.repo.Select(func(m datamodels.User) bool {
 	//	if m.Username == username {
 	//		hashed := m.HashedPassword
 	//		if ok, _ := datamodels.ValidatePassword(userPassword, hashed); ok {
@@ -81,34 +81,34 @@ func (s *userServiceImpl) GetByUsernameAndPassword1(username, userPassword strin
 	//	}
 	//	return false
 	//})
-	return datamodels.Users{}, false
+	return datamodels.User{}, false
 }
 
 //更新现有用户的每个字段的更新，
 //通过公共API使用是不安全的
 //但是我们将在web  controllers/user_controller.go#PutBy上使用它
 //为了向您展示它是如何工作的。
-func (s *userServiceImpl) Update(id int64, user datamodels.Users) (datamodels.Users, error) {
+func (s *userServiceImpl) Update(id int64, user datamodels.User) (datamodels.User, error) {
 	user.ID = id
 	return s.repo.InsertOrUpdate(user)
 }
 
 // UpdatePassword更新用户的密码。
-func (s *userServiceImpl) UpdatePassword(id int64, newPassword string) (datamodels.Users, error) {
+func (s *userServiceImpl) UpdatePassword(id int64, newPassword string) (datamodels.User, error) {
 	////更新用户并将其返回。
 	//hashed, err := datamodels.GeneratePassword(newPassword)
 	//if err != nil {
-	//	return datamodels.Users{}, err
+	//	return datamodels.User{}, err
 	//}
-	//return s.Update(id, datamodels.Users{
+	//return s.Update(id, datamodels.User{
 	//	HashedPassword: hashed,
 	//})
-	return datamodels.Users{}, nil
+	return datamodels.User{}, nil
 }
 
 // UpdateUsername更新用户的用户名
-func (s *userServiceImpl) UpdateUsername(id int64, newUsername string) (datamodels.Users, error) {
-	return s.Update(id, datamodels.Users{
+func (s *userServiceImpl) UpdateUsername(id int64, newUsername string) (datamodels.User, error) {
+	return s.Update(id, datamodels.User{
 		Name: newUsername,
 	})
 }
@@ -116,13 +116,13 @@ func (s *userServiceImpl) UpdateUsername(id int64, newUsername string) (datamode
 //创建插入新用户，
 // userPassword是客户端类型的密码
 //它将在插入我们的存储库之前进行哈希处理
-func (s *userServiceImpl) Create(userPassword string, user datamodels.Users) (datamodels.Users, error) {
+func (s *userServiceImpl) Create(userPassword string, user datamodels.User) (datamodels.User, error) {
 	if user.ID > 0 || userPassword == "" || user.Name == "" {
-		return datamodels.Users{}, errors.New("unable to create this user")
+		return datamodels.User{}, errors.New("unable to create this user")
 	}
 	hashed, err := datamodels.GeneratePassword(userPassword)
 	if err != nil {
-		return datamodels.Users{}, err
+		return datamodels.User{}, err
 	}
 	user.Password = string(hashed)
 	return s.repo.InsertOrUpdate(user)
@@ -131,7 +131,7 @@ func (s *userServiceImpl) Create(userPassword string, user datamodels.Users) (da
 // DeleteByID按其id删除用户。
 //如果删除则返回true，否则返回false。
 func (s *userServiceImpl) DeleteByID(id int64) bool {
-	return s.repo.Delete(func(m datamodels.Users) bool {
+	return s.repo.Delete(func(m datamodels.User) bool {
 		return m.ID == id
 	}, 1)
 }

@@ -1,6 +1,7 @@
-package frontend
+package api
 
 import (
+	"github.com/jimersylee/iris-seed/commons"
 	"github.com/jimersylee/iris-seed/commons/web_session"
 	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/services"
@@ -16,7 +17,7 @@ import (
 // POST             /user/login
 // GET                 /user/me
 //所有HTTP方法 /user/logout
-type UserController struct {
+type ApiUserController struct {
 	//每个请求都由Iris自动绑定上下文，
 	//记住，每次传入请求时，iris每次都会创建一个新的UserController，
 	//所以所有字段都是默认的请求范围，只能设置依赖注入
@@ -27,14 +28,14 @@ type UserController struct {
 	//从主应用程序绑定。
 }
 
-func (c *UserController) getCurrentUserID() int64 {
+func (c *ApiUserController) getCurrentUserID() int64 {
 	userID := web_session.GetCurrentUser(c.Ctx)
 	return userID
 }
-func (c *UserController) isLoggedIn() bool {
+func (c *ApiUserController) isLoggedIn() bool {
 	return c.getCurrentUserID() > 0
 }
-func (c *UserController) logout() {
+func (c *ApiUserController) logout() {
 	web_session.DelCurrentUser(c.Ctx)
 }
 
@@ -44,7 +45,7 @@ var registerStaticView = mvc.View{
 }
 
 // GetRegister 处理 GET: http://localhost:17001/user/register.
-func (c *UserController) GetRegister() mvc.Result {
+func (c *ApiUserController) GetRegister() mvc.Result {
 	if c.isLoggedIn() {
 		c.logout()
 	}
@@ -52,7 +53,7 @@ func (c *UserController) GetRegister() mvc.Result {
 }
 
 // PostRegister 处理 POST: http://localhost:17001/user/register.
-func (c *UserController) PostRegister() mvc.Result {
+func (c *ApiUserController) PostRegister() mvc.Result {
 	//从表单中获取名字，用户名和密码
 	var (
 		username = c.Ctx.FormValue("username")
@@ -85,39 +86,27 @@ var loginStaticView = mvc.View{
 	Data: iris.Map{"Title": "User Login"},
 }
 
-// GetLogin handles GET: http://localhost:17001/user/login.
-func (c *UserController) GetLogin() mvc.Result {
-	if c.isLoggedIn() {
-		// if it's already logged in then destroy the previous web_session.
-		c.logout()
-	}
-	return loginStaticView
-}
-
 // PostLogin handles
 // PostLogin处理POST: http://localhost:17001/user/register.
-func (c *UserController) PostLogin() mvc.Result {
+func (c *ApiUserController) PostLogin() *commons.WebApiResult {
 	var (
 		username = c.Ctx.FormValue("username")
 		password = c.Ctx.FormValue("password")
 	)
 	user, found := services.UserService.GetByUsernameAndPassword(username, password)
 	if !found {
-		return mvc.Response{
-			Path: "/user/register",
-		}
+		return commons.JsonErrorCode(111, "账号未找到")
+
 	}
 	web_session.SetCurrentUser(c.Ctx, user.ID)
-	return mvc.Response{
-		Path: "/user/me",
-	}
+	return commons.JsonData(1111)
 }
 
 // GetMe 处理P GET: http://localhost:17001/user/me.
-func (c *UserController) GetMe() mvc.Result {
+func (c *ApiUserController) GetMe() {
 	if !c.isLoggedIn() {
 		//如果没有登录，则将用户重定向到登录页面。
-		return mvc.Response{Path: "/user/login"}
+
 	}
 	u := services.UserService.GetByID(c.getCurrentUserID())
 	if u == nil {
@@ -125,19 +114,12 @@ func (c *UserController) GetMe() mvc.Result {
 		//然后注销并重新执行该函数，它会将客户端重定向到
 		// /user/login页面。
 		c.logout()
-		return c.GetMe()
 	}
-	return mvc.View{
-		Name: "user/me.html",
-		Data: iris.Map{
-			"Title": "Profile of " + u.Name,
-			"User":  u,
-		},
-	}
+
 }
 
 // AnyLogout处理 All/AnyHTTP 方法：http://localhost:17001/user/logout
-func (c *UserController) AnyLogout() {
+func (c *ApiUserController) AnyLogout() {
 	if c.isLoggedIn() {
 		c.logout()
 	}

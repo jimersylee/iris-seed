@@ -5,9 +5,7 @@ require (
 	github.com/betacraft/yaag v1.0.0
 	github.com/flosch/pongo2 v0.0.0-20190707114632-bbf5a6c351f4 // indirect
 	github.com/gavv/monotime v0.0.0-20190418164738-30dba4353424 // indirect
-	github.com/go-redis/redis v6.15.3+incompatible // indirect
-	github.com/go-session/redis v3.0.1+incompatible
-	github.com/go-session/session v3.1.2+incompatible
+	github.com/goburrow/cache v0.1.0
 	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/iris-contrib/formBinder v5.0.0+incompatible // indirect
 	github.com/iris-contrib/middleware v0.0.0-20190720041902-5f3a20f489c4
@@ -19,6 +17,8 @@ require (
 	github.com/klauspost/compress v1.7.4 // indirect
 	github.com/klauspost/cpuid v1.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/onsi/ginkgo v1.8.0 // indirect
+	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/prometheus/client_golang v1.0.0
 	github.com/sirupsen/logrus v1.2.0
 	github.com/smartystreets/goconvey v0.0.0-20190710185942-9d28bd7c0945 // indirect

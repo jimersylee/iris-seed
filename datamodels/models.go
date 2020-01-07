@@ -1,5 +1,6 @@
 package datamodels
 
 var Models = []interface{}{
-	&Users{},
+	&User{},
+	&UserToken{},
 }

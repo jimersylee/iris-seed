@@ -1,6 +1,6 @@
 Env: prod # 环境，线上环境：prod、测试环境：dev
 BaseUrl: http://iris.seed.com # 网站域名
-Port: '10001' # 端口
+Port: '17001' # 端口
 ShowSql: false # 是否打印sql
 ViewsPath: ./web/views  # views模版文件目录，可配置绝对路径
 RootStaticPath: /data/www  # 根路径下的静态文件目录，可配置绝对路径

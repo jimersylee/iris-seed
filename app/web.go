@@ -5,10 +5,12 @@ import (
 	"github.com/betacraft/yaag/irisyaag"
 	"github.com/betacraft/yaag/yaag"
 	"github.com/iris-contrib/middleware/prometheus"
+	"github.com/jimersylee/iris-seed/commons/api_token"
+	"github.com/jimersylee/iris-seed/commons/db"
+	"github.com/jimersylee/iris-seed/commons/web_session"
 	"github.com/jimersylee/iris-seed/config"
 	"github.com/jimersylee/iris-seed/datamodels"
-	"github.com/jimersylee/iris-seed/utils/db"
-	"github.com/jimersylee/iris-seed/utils/session"
+	"github.com/jimersylee/iris-seed/web/api"
 	"github.com/jimersylee/iris-seed/web/frontend"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
@@ -27,7 +29,10 @@ func RunApp() {
 	initDoc(app)
 	initRouter(app)
 	initDataSource(app)
-	session.InitSessionManager()
+	//初始化web session管理
+	web_session.InitSessionManager()
+	//初始化api token 管理
+	api_token.InitTokenManager()
 
 	_ = app.Run(iris.Addr(":"+config.Conf.Port), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)
 }
@@ -107,14 +112,16 @@ func initRouter(app *iris.Application) {
 	// "/user" based mvc application.
 	user := mvc.New(app.Party("/user"))
 	user.Handle(new(frontend.UserController))
+	apiUser := mvc.New(app.Party("/api/user"))
+	apiUser.Handle(new(api.ApiUserController))
 
-	// http://localhost:8080/noexist
+	// http://localhost:17001/noexist
 	// and all controller's methods like
-	// http://localhost:8080/users/1
-	// http://localhost:8080/user/register
-	// http://localhost:8080/user/login
-	// http://localhost:8080/user/me
-	// http://localhost:8080/user/logout
+	// http://localhost:17001/users/1
+	// http://localhost:17001/user/register
+	// http://localhost:17001/user/login
+	// http://localhost:17001/user/me
+	// http://localhost:17001/user/logout
 
 }
 
