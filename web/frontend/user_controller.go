@@ -2,7 +2,6 @@ package frontend
 
 import (
 	"github.com/jimersylee/iris-seed/commons/web_session"
-	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/services"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
@@ -53,31 +52,32 @@ func (c *UserController) GetRegister() mvc.Result {
 
 // PostRegister 处理 POST: http://localhost:17001/user/register.
 func (c *UserController) PostRegister() mvc.Result {
-	//从表单中获取名字，用户名和密码
-	var (
-		username = c.Ctx.FormValue("username")
-		password = c.Ctx.FormValue("password")
-	)
-	//创建新用户，密码将由服务进行哈希处理
-	u, err := services.UserService.Create(password, datamodels.User{
-		Name: username,
-	})
-	//将用户的id设置为此会话，即使err！= nil，
-	//零id无关紧要因为.getCurrentUserID()检查它。
-	//如果错误！= nil那么它将被显示，见下面的mvc.Response.Err：err
-	web_session.SetCurrentUser(c.Ctx, u.ID)
-	return mvc.Response{
-		//如果不是nil，则会显示此错误
-		Err: err,
-		//从定向 /user/me.
-		Path: "/user/me",
-		//当从POST重定向到GET请求时，您应该使用此HTTP状态代码，
-		//但是如果你有一些（复杂的）选择
-		//在线搜索甚至是HTTP RFC。
-		//状态“查看其他”RFC 7231，但虹膜可以自动修复它
-		//但很高兴知道你可以设置自定义代码;
-		//代码：303，
-	}
+	////从表单中获取名字，用户名和密码
+	//var (
+	//	username = c.Ctx.FormValue("username")
+	//	password = c.Ctx.FormValue("password")
+	//)
+	////创建新用户，密码将由服务进行哈希处理
+	//err := services.UserService.Create(password, datamodels.User{
+	//	Name: username,
+	//})
+	////将用户的id设置为此会话，即使err！= nil，
+	////零id无关紧要因为.getCurrentUserID()检查它。
+	////如果错误！= nil那么它将被显示，见下面的mvc.Response.Err：err
+	//web_session.SetCurrentUser(c.Ctx, u.ID)
+	//return mvc.Response{
+	//	//如果不是nil，则会显示此错误
+	//	Err: err,
+	//	//从定向 /user/me.
+	//	Path: "/user/me",
+	//	//当从POST重定向到GET请求时，您应该使用此HTTP状态代码，
+	//	//但是如果你有一些（复杂的）选择
+	//	//在线搜索甚至是HTTP RFC。
+	//	//状态“查看其他”RFC 7231，但虹膜可以自动修复它
+	//	//但很高兴知道你可以设置自定义代码;
+	//	//代码：303，
+	//}
+	return nil
 }
 
 var loginStaticView = mvc.View{
@@ -101,7 +101,7 @@ func (c *UserController) PostLogin() mvc.Result {
 		username = c.Ctx.FormValue("username")
 		password = c.Ctx.FormValue("password")
 	)
-	user, found := services.UserService.GetByUsernameAndPassword(username, password)
+	user, found := services.UserService.GetUserByUsernameAndPassword(username, password)
 	if !found {
 		return mvc.Response{
 			Path: "/user/register",

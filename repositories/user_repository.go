@@ -14,13 +14,13 @@ type UserRepository interface {
 	Exec(query Query, action Query, limit int, mode int) (ok bool)
 	Select(query Query) (user datamodels.User, found bool)
 	SelectMany(query Query, limit int) (results []datamodels.User)
-	InsertOrUpdate(user datamodels.User) (updatedUser datamodels.User, err error)
+	InsertOrUpdate(db *gorm.DB, user *datamodels.User) (err error)
 	Delete(query Query, limit int) (deleted bool)
 	FindByToken(db *gorm.DB, username string) *datamodels.User
 	FindOne(db *gorm.DB, id int64) (user *datamodels.User)
 }
 
-// NewUserRepository返回一个新的基于用户内存的存储库，
+// NewUserRepository返回一个新的基于mysql的存储库，
 //我们示例中唯一的存储库类型。
 func NewUserRepository() UserRepository {
 	return &userRepository{}
@@ -68,8 +68,8 @@ func (r *userRepository) SelectMany(query Query, limit int) (results []datamodel
 
 // InsertOrUpdate将用户添加或更新到（内存）存储。
 //返回新用户，如果有则返回错误。
-func (r *userRepository) InsertOrUpdate(user datamodels.User) (datamodels.User, error) {
-	return user, nil
+func (r *userRepository) InsertOrUpdate(db *gorm.DB, user *datamodels.User) (err error) {
+	return db.Save(user).Error
 }
 func (r *userRepository) Delete(query Query, limit int) bool {
 	return false

@@ -52,7 +52,7 @@ func (s *userServiceImpl) GetByID(id int64) *datamodels.User {
 
 //获取yUsernameAndPassword根据用户名和密码返回用户，
 //用于身份验证。
-func (s *userServiceImpl) GetByUsernameAndPassword(username, userPassword string) (datamodels.User, bool) {
+func (s *userServiceImpl) GetUserByUsernameAndPassword(username, userPassword string) (datamodels.User, bool) {
 	if username == "" || userPassword == "" {
 		return datamodels.User{}, false
 	}
@@ -88,9 +88,9 @@ func (s *userServiceImpl) GetByUsernameAndPassword1(username, userPassword strin
 //通过公共API使用是不安全的
 //但是我们将在web  controllers/user_controller.go#PutBy上使用它
 //为了向您展示它是如何工作的。
-func (s *userServiceImpl) Update(id int64, user datamodels.User) (datamodels.User, error) {
+func (s *userServiceImpl) Update(id int64, user datamodels.User) (err error) {
 	user.ID = id
-	return s.repo.InsertOrUpdate(user)
+	return s.repo.InsertOrUpdate(db.GetDB(), &user)
 }
 
 // UpdatePassword更新用户的密码。
@@ -107,7 +107,7 @@ func (s *userServiceImpl) UpdatePassword(id int64, newPassword string) (datamode
 }
 
 // UpdateUsername更新用户的用户名
-func (s *userServiceImpl) UpdateUsername(id int64, newUsername string) (datamodels.User, error) {
+func (s *userServiceImpl) UpdateUsername(id int64, newUsername string) (err error) {
 	return s.Update(id, datamodels.User{
 		Name: newUsername,
 	})
@@ -116,16 +116,16 @@ func (s *userServiceImpl) UpdateUsername(id int64, newUsername string) (datamode
 //创建插入新用户，
 // userPassword是客户端类型的密码
 //它将在插入我们的存储库之前进行哈希处理
-func (s *userServiceImpl) Create(userPassword string, user datamodels.User) (datamodels.User, error) {
+func (s *userServiceImpl) Create(userPassword string, user datamodels.User) (err error) {
 	if user.ID > 0 || userPassword == "" || user.Name == "" {
-		return datamodels.User{}, errors.New("unable to create this user")
+		return errors.New("unable to create this user")
 	}
 	hashed, err := datamodels.GeneratePassword(userPassword)
 	if err != nil {
-		return datamodels.User{}, err
+		return err
 	}
 	user.Password = string(hashed)
-	return s.repo.InsertOrUpdate(user)
+	return s.repo.InsertOrUpdate(db.GetDB(), &user)
 }
 
 // DeleteByID按其id删除用户。

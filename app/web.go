@@ -115,15 +115,6 @@ func initRouter(app *iris.Application) {
 	//user.Handle(new(frontend.UserController))
 	apiUser := mvc.New(app.Party("/api/user"))
 	apiUser.Handle(new(api.UserController))
-
-	// http://localhost:17001/noexist
-	// and all controller's methods like
-	// http://localhost:17001/users/1
-	// http://localhost:17001/user/register
-	// http://localhost:17001/user/login
-	// http://localhost:17001/user/me
-	// http://localhost:17001/user/logout
-
 }
 
 //初始化文档

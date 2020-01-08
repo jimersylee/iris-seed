@@ -42,37 +42,37 @@ func (c *UserController) logout() {
 
 // PostRegister 处理 POST: http://localhost:17001/user/register.
 func (c *UserController) PostRegister() *commons.WebApiResult {
-	//从表单中获取名字，用户名和密码
-	var (
-		username = c.Ctx.FormValue("username")
-		password = c.Ctx.FormValue("password")
-	)
+	loginDTO := &entities.LoginDTO{}
+	err := c.Ctx.ReadJSON(loginDTO)
+	if err != nil {
+		commons.JsonErrorMsg("解析错误")
+	}
 	//创建新用户，密码将由服务进行哈希处理
-	u, err := services.UserService.Create(password, datamodels.User{
-		Name: username,
+	err = services.UserService.Create(loginDTO.Password, datamodels.User{
+		Name: loginDTO.Username,
 	})
 	if err != nil {
 		return commons.JsonErrorMsg(err.Error())
 	}
-	return commons.JsonData(u)
+	user, b := services.UserService.GetUserByUsernameAndPassword(loginDTO.Username, loginDTO.Password)
+	if b {
+		return commons.JsonData(user)
+	}
+
+	return commons.JsonErrorMsg("注册失败")
 
 }
 
 // PostLogin handles
 // PostLogin处理POST: http://localhost:17001/user/register.
 func (c *UserController) PostLogin() *commons.WebApiResult {
-	var (
-	//username = c.Ctx.FormValue("username")
-	//password = c.Ctx.FormValue("password")
-
-	)
-	ee := &entities.LoginDTO{}
-	err := c.Ctx.ReadJSON(ee)
+	loginDTO := &entities.LoginDTO{}
+	err := c.Ctx.ReadJSON(loginDTO)
 	if err != nil {
 		commons.JsonErrorMsg("解析错误")
 	}
-	user, found := services.UserService.GetByUsernameAndPassword(ee.Username, ee.Password)
-	logrus.Info("username:"+ee.Username)
+	user, found := services.UserService.GetUserByUsernameAndPassword(loginDTO.Username, loginDTO.Password)
+	logrus.Info("username:" + loginDTO.Username)
 	if !found {
 		return commons.JsonErrorCode(111, "账号未找到")
 	}
