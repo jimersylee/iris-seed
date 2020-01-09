@@ -16,7 +16,7 @@ type UserRepository interface {
 	SelectMany(query Query, limit int) (results []datamodels.User)
 	InsertOrUpdate(db *gorm.DB, user *datamodels.User) (err error)
 	Delete(query Query, limit int) (deleted bool)
-	FindByToken(db *gorm.DB, username string) *datamodels.User
+	FindByUserName(db *gorm.DB, username string) *datamodels.User
 	FindOne(db *gorm.DB, id int64) (user *datamodels.User)
 }
 
@@ -42,7 +42,7 @@ func (r *userRepository) FindOne(db *gorm.DB, id int64) (user *datamodels.User) 
 	}
 	return ret
 }
-func (r *userRepository) FindByToken(db *gorm.DB, username string) *datamodels.User {
+func (r *userRepository) FindByUserName(db *gorm.DB, username string) *datamodels.User {
 	ret := &datamodels.User{}
 	if err := db.First(ret, "name= ? ", username).Error; err != nil {
 		return nil

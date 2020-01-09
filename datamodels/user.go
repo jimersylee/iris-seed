@@ -17,6 +17,7 @@ type User struct {
 	ID              int64  `json:"id" form:"id"`
 	Name            string `json:"name" form:"name"`
 	Email           string
+	Avatar          string `json:"avatar" form:"avatar"`
 	EmailVerifiedAt time.Time
 	Password        string
 	RememberToken   string

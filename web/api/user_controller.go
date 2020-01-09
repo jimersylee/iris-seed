@@ -77,6 +77,7 @@ func (c *UserController) PostLogin() *response.WebApiRes {
 	if !found {
 		return response.JsonErrorCode(commons.ErrorCodeUserNotFound)
 	}
+
 	token := services.UserTokenService.UpdateToken(user.ID)
 	api_token.SetApiCurrentUser(token, user.ID)
 	return response.JsonData(token)
@@ -96,6 +97,13 @@ func (c *UserController) GetMe() *response.WebApiRes {
 		return response.JsonErrorCode(commons.ErrorCodeUserNotFound)
 	}
 	return response.JsonData(u)
+
+}
+
+// GetMe 处理P GET: http://localhost:17001/user/me.
+func (c *UserController) GetJimersylee() *response.WebApiRes {
+	user, _ := services.UserService.GetByUsername("jimersylee")
+	return response.JsonData(user)
 
 }
 

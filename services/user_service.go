@@ -56,7 +56,7 @@ func (s *userServiceImpl) GetUserByUsernameAndPassword(username, userPassword st
 	if username == "" || userPassword == "" {
 		return datamodels.User{}, false
 	}
-	user := s.repo.FindByToken(db.GetDB(), username)
+	user := s.repo.FindByUserName(db.GetDB(), username)
 	if user != nil {
 		if ok, _ := datamodels.ValidatePassword(userPassword, []byte(user.Password)); ok {
 			return *user, true
@@ -68,19 +68,11 @@ func (s *userServiceImpl) GetUserByUsernameAndPassword(username, userPassword st
 
 //获取yUsernameAndPassword根据用户名和密码返回用户，
 //用于身份验证。
-func (s *userServiceImpl) GetByUsernameAndPassword1(username, userPassword string) (datamodels.User, bool) {
-	//if username == "" || userPassword == "" {
-	//	return datamodels.User{}, false
-	//}
-	//return s.repo.Select(func(m datamodels.User) bool {
-	//	if m.Username == username {
-	//		hashed := m.HashedPassword
-	//		if ok, _ := datamodels.ValidatePassword(userPassword, hashed); ok {
-	//			return true
-	//		}
-	//	}
-	//	return false
-	//})
+func (s *userServiceImpl) GetByUsername(username string) (datamodels.User, bool) {
+	user := s.repo.FindByUserName(db.GetDB(), username)
+	if user != nil {
+		return *user, true
+	}
 	return datamodels.User{}, false
 }
 
