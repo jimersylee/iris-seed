@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/jimersylee/iris-seed/commons/api_token"
+	"github.com/jimersylee/iris-seed/commons/response"
 	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/entities"
 	"github.com/jimersylee/iris-seed/services"
@@ -41,65 +42,65 @@ func (c *UserController) logout() {
 }
 
 // PostRegister 处理 POST: http://localhost:17001/user/register.
-func (c *UserController) PostRegister() *commons.WebApiResult {
+func (c *UserController) PostRegister() *response.WebApiRes {
 	loginDTO := &entities.LoginDTO{}
 	err := c.Ctx.ReadJSON(loginDTO)
 	if err != nil {
-		commons.JsonErrorMsg("解析错误")
+		response.JsonErrorCode(commons.ErrorCodeParse)
 	}
 	//创建新用户，密码将由服务进行哈希处理
 	err = services.UserService.Create(loginDTO.Password, datamodels.User{
 		Name: loginDTO.Username,
 	})
 	if err != nil {
-		return commons.JsonErrorMsg(err.Error())
+		return response.JsonErrorMsg(err.Error())
 	}
 	user, b := services.UserService.GetUserByUsernameAndPassword(loginDTO.Username, loginDTO.Password)
 	if b {
-		return commons.JsonData(user)
+		return response.JsonData(user)
 	}
 
-	return commons.JsonErrorMsg("注册失败")
+	return response.JsonErrorCode(commons.ErrorCodeRegisterFailed)
 
 }
 
 // PostLogin handles
 // PostLogin处理POST: http://localhost:17001/user/register.
-func (c *UserController) PostLogin() *commons.WebApiResult {
+func (c *UserController) PostLogin() *response.WebApiRes {
 	loginDTO := &entities.LoginDTO{}
 	err := c.Ctx.ReadJSON(loginDTO)
 	if err != nil {
-		commons.JsonErrorMsg("解析错误")
+		response.JsonErrorCode(commons.ErrorCodeParse)
 	}
 	user, found := services.UserService.GetUserByUsernameAndPassword(loginDTO.Username, loginDTO.Password)
 	logrus.Info("username:" + loginDTO.Username)
 	if !found {
-		return commons.JsonErrorCode(111, "账号未找到")
+		return response.JsonErrorCode(commons.ErrorCodeUserNotFound)
 	}
 	token := services.UserTokenService.UpdateToken(user.ID)
 	api_token.SetApiCurrentUser(token, user.ID)
-	return commons.JsonData(token)
+	return response.JsonData(token)
 }
 
 // GetMe 处理P GET: http://localhost:17001/user/me.
-func (c *UserController) GetMe() *commons.WebApiResult {
+func (c *UserController) GetMe() *response.WebApiRes {
 	if !c.isLoggedIn() {
 		//如果没有登录，则将用户重定向到登录页面。
-		return commons.JsonErrorMsg("未登录")
+		return response.JsonErrorMsg("未登录")
 	}
 	u := services.UserService.GetByID(c.getCurrentUserID())
 	if u == nil {
 		//如果session存在但由于某种原因用户不存在于“数据库”中
 		//然后注销并重新执行该函数，它会将客户端重定向到
 		// /user/login页面。
-		return commons.JsonErrorCode(404, "未找到用户")
+		return response.JsonErrorCode(commons.ErrorCodeUserNotFound)
 	}
-	return commons.JsonData(u)
+	return response.JsonData(u)
 
 }
 
 // AnyLogout处理 All/AnyHTTP 方法：http://localhost:17001/user/logout
-func (c *UserController) AnyLogout() *commons.WebApiResult {
+func (c *UserController) AnyLogout() *response.WebApiRes {
 	c.logout()
-	return commons.JsonSuccess()
+	return response.JsonSuccess()
 }
