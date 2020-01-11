@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/jimersylee/iris-seed/commons/codegenerator"
+	"github.com/jimersylee/iris-seed/commons/code_generator"
 	"github.com/jimersylee/iris-seed/models"
 )
 
 func main() {
-	codegenerator.Generate("./", "github.com/jimersylee/iris-seed", codegenerator.GetGenerateStruct(&models.Book{}))
+	code_generator.Generate("./", "github.com/jimersylee/iris-seed", code_generator.GetGenerateStruct(&models.Book{}))
 }

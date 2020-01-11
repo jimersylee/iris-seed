@@ -1,4 +1,4 @@
-package codegenerator
+package code_generator
 
 import "html/template"
 

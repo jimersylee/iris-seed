@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/jimersylee/iris-seed/commons"
+	"github.com/jimersylee/iris-seed/commons/api_token"
 	"github.com/jimersylee/iris-seed/commons/response"
 	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/services"
@@ -13,6 +14,10 @@ type BookController struct {
 }
 
 func (this *BookController) GetBy(id int64) *response.WebApiRes {
+	user := api_token.GetApiCurrentUser(this.Ctx)
+	if user <= 0 {
+		return response.JsonErrorCode(commons.ErrorCodeNotLogin)
+	}
 	t := services.BookService.Get(id)
 	if t == nil {
 		return response.JsonErrorCode(commons.ErrorCodeNotFound)
