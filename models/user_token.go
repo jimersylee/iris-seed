@@ -1,4 +1,4 @@
-package datamodels
+package models
 
 // User is our User example model.
 // Keep note that the tags for public-use (for our web app)

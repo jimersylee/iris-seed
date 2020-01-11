@@ -3,7 +3,7 @@ package services
 import (
 	uuid "github.com/iris-contrib/go.uuid"
 	"github.com/jimersylee/iris-seed/commons/db"
-	"github.com/jimersylee/iris-seed/datamodels"
+	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/repositories"
 	"strings"
 )
@@ -15,7 +15,7 @@ import (
 //它是一个接口，它在任何地方都被用作接口
 //因为我们可能需要在将来更改或尝试实验性的不同域逻辑。
 type UserTokenServiceInterface interface {
-	GetByID(id int64) *datamodels.UserToken
+	GetByID(id int64) *models.UserToken
 	DeleteByID(id int64) bool
 }
 
@@ -39,7 +39,7 @@ func (s *UserTokenServiceImpl) DeleteByID(id int64) bool {
 	return true
 }
 
-func (s *UserTokenServiceImpl) GetByID(id int64) *datamodels.UserToken {
+func (s *UserTokenServiceImpl) GetByID(id int64) *models.UserToken {
 	return s.repo.FindOne(db.GetDB(), id)
 }
 

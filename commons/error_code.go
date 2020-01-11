@@ -7,7 +7,7 @@ import (
 var (
 	ErrorCodeNotLogin       = NewError(1, "请先登录")
 	ErrorCodeParse          = NewError(2, "解析错误")
-	ErrorCodeUserNotFound   = NewError(3, "用户未找到")
+	ErrorCodeNotFound       = NewError(3, "未找到")
 	ErrorCodeRegisterFailed = NewError(4, "用户注册失败")
 )
 

@@ -1,2 +1,5 @@
 /.idea
 vendor/
+/tmp
+
+iris-seed

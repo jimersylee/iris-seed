@@ -10,7 +10,7 @@ import (
 	"github.com/jimersylee/iris-seed/commons/redis_manager"
 	"github.com/jimersylee/iris-seed/commons/web_session"
 	"github.com/jimersylee/iris-seed/config"
-	"github.com/jimersylee/iris-seed/datamodels"
+	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/web/api"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
@@ -52,7 +52,7 @@ func initDataSource(app *iris.Application) {
 		MaxIdle:        5,
 		MaxActive:      20,
 		EnableLogModel: config.Conf.ShowSql,
-		Models:         datamodels.Models,
+		Models:         models.Models,
 	})
 }
 
@@ -110,11 +110,10 @@ func initRouter(app *iris.Application) {
 	})
 	app.Get("/metrics", iris.FromStd(promhttp.Handler()))
 
-	// "/user" based mvc application.
-	//user := mvc.New(app.Party("/user"))
-	//user.Handle(new(frontend.UserController))
-	apiUser := mvc.New(app.Party("/api/user"))
-	apiUser.Handle(new(api.UserController))
+	mvc.Configure(app.Party("/api"), func(application *mvc.Application) {
+		application.Party("/user").Handle(new(api.UserController))
+		application.Party("/book").Handle(new(api.BookController))
+	})
 }
 
 //初始化文档

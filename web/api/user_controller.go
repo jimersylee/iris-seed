@@ -4,8 +4,8 @@ import (
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/jimersylee/iris-seed/commons/api_token"
 	"github.com/jimersylee/iris-seed/commons/response"
-	"github.com/jimersylee/iris-seed/datamodels"
 	"github.com/jimersylee/iris-seed/entities"
+	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/services"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
@@ -49,7 +49,7 @@ func (c *UserController) PostRegister() *response.WebApiRes {
 		response.JsonErrorCode(commons.ErrorCodeParse)
 	}
 	//创建新用户，密码将由服务进行哈希处理
-	err = services.UserService.Create(loginDTO.Password, datamodels.User{
+	err = services.UserService.Create(loginDTO.Password, models.User{
 		Name: loginDTO.Username,
 	})
 	if err != nil {
@@ -75,7 +75,7 @@ func (c *UserController) PostLogin() *response.WebApiRes {
 	user, found := services.UserService.GetUserByUsernameAndPassword(loginDTO.Username, loginDTO.Password)
 	logrus.Info("username:" + loginDTO.Username)
 	if !found {
-		return response.JsonErrorCode(commons.ErrorCodeUserNotFound)
+		return response.JsonErrorCode(commons.ErrorCodeNotFound)
 	}
 
 	token := services.UserTokenService.UpdateToken(user.ID)
@@ -94,7 +94,7 @@ func (c *UserController) GetMe() *response.WebApiRes {
 		//如果session存在但由于某种原因用户不存在于“数据库”中
 		//然后注销并重新执行该函数，它会将客户端重定向到
 		// /user/login页面。
-		return response.JsonErrorCode(commons.ErrorCodeUserNotFound)
+		return response.JsonErrorCode(commons.ErrorCodeNotFound)
 	}
 	return response.JsonData(u)
 
