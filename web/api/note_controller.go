@@ -6,6 +6,7 @@ import (
 	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/services"
 	"github.com/kataras/iris"
+	"time"
 )
 
 type NoteController struct {
@@ -31,7 +32,7 @@ func (this *NoteController) PostCreate() *response.WebApiRes {
 	if err != nil {
 		return response.JsonErrorMsg(err.Error())
 	}
-
+	t.CreateTime = time.Now().Unix()
 	err = services.NoteService.Create(t)
 	if err != nil {
 		return response.JsonErrorMsg(err.Error())
@@ -53,7 +54,7 @@ func (this *NoteController) PostUpdate() *response.WebApiRes {
 	if err != nil {
 		return response.JsonErrorMsg(err.Error())
 	}
-
+	t.UpdateTime = time.Now().Unix()
 	err = services.NoteService.Update(t)
 	if err != nil {
 		return response.JsonErrorMsg(err.Error())

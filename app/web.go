@@ -113,6 +113,7 @@ func initRouter(app *iris.Application) {
 	mvc.Configure(app.Party("/api"), func(application *mvc.Application) {
 		application.Party("/user").Handle(new(api.UserController))
 		application.Party("/book").Handle(new(api.BookController))
+		application.Party("/note").Handle(new(api.NoteController))
 	})
 }
 
