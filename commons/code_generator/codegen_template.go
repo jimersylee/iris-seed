@@ -161,7 +161,6 @@ import (
 	"{{.PkgName}}/services"
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/kataras/iris"
-	"strconv"
 	"github.com/sirupsen/logrus"
 )
 
@@ -169,53 +168,53 @@ type {{.Name}}Controller struct {
 	Ctx             iris.Context
 }
 
-func (this *{{.Name}}Controller) GetBy(id int64) *commons.JsonResult {
+func (this *{{.Name}}Controller) GetBy(id int64) *response.WebApiRes {
 	t := services.{{.Name}}Service.Get(id)
 	if t == nil {
-		return commons.JsonErrorMsg("Not found, id=" + strconv.FormatInt(id, 10))
+		return response.JsonErrorCode(commons.ErrorCodeNotFound)
 	}
-	return commons.JsonData(t)
+	return response.JsonData(t)
 }
 
-func (this *{{.Name}}Controller) AnyList() *commons.JsonResult {
+func (this *{{.Name}}Controller) AnyList() *response.WebApiRes {
 	list, paging := services.{{.Name}}Service.FindPageByParams(commons.NewQueryParams(this.Ctx).PageByReq().Desc("id"))
-	return commons.JsonData(&commons.PageResult{Results: list, Page: paging})
+	return response.JsonData(&commons.PageResult{Results: list, Page: paging})
 }
 
-func (this *{{.Name}}Controller) PostCreate() *commons.JsonResult {
+func (this *{{.Name}}Controller) PostCreate() *response.WebApiRes {
 	t := &models.{{.Name}}{}
 	err := this.Ctx.ReadForm(t)
 	if err != nil {
-		return commons.JsonErrorMsg(err.Error())
+		return response.JsonErrorMsg(err.Error())
 	}
 
 	err = services.{{.Name}}Service.Create(t)
 	if err != nil {
-		return commons.JsonErrorMsg(err.Error())
+		return response.JsonErrorMsg(err.Error())
 	}
-	return commons.JsonData(t)
+	return response.JsonData(t)
 }
 
-func (this *{{.Name}}Controller) PostUpdate() *commons.JsonResult {
+func (this *{{.Name}}Controller) PostUpdate() *response.WebApiRes {
 	id, err := commons.FormValueInt64(this.Ctx, "id")
 	if err != nil {
-		return commons.JsonErrorMsg(err.Error())
+		return response.JsonErrorMsg(err.Error())
 	}
 	t := services.{{.Name}}Service.Get(id)
 	if t == nil {
-		return commons.JsonErrorMsg("entity not found")
+			return response.JsonErrorCode(commons.ErrorCodeNotFound)
 	}
 
 	err = this.Ctx.ReadForm(t)
 	if err != nil {
-		return commons.JsonErrorMsg(err.Error())
+		return response.JsonErrorMsg(err.Error())
 	}
 
 	err = services.{{.Name}}Service.Update(t)
 	if err != nil {
-		return commons.JsonErrorMsg(err.Error())
+		return response.JsonErrorMsg(err.Error())
 	}
-	return commons.JsonData(t)
+	return response.JsonData(t)
 }
 
 `))

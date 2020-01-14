@@ -31,7 +31,6 @@ func GetClient() *redis.Client {
 	if client == nil {
 		InitRedisManager()
 	}
-	logrus.Info("eeeeeee:")
-	logrus.Info(client)
+	logrus.Info("init redis manager")
 	return client
 }
