@@ -19,10 +19,11 @@ vditor (https://github.com/b3log/vditor) Markdown 编辑器
 
 ### hot reload
 ```shell script
-go get -u github.com/kataras/rizla
-rizla main.go
+go get -u github.com/beego/bee
+bee run 
 ```
-
+### Author
+jimersylee@gmail.com
 
 # 功能
 - [x] 注册登录
