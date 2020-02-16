@@ -12,13 +12,6 @@ import (
 )
 
 // UserController是我们的/用户控制器。
-// UserController负责处理以下请求：
-// GET              /user/register
-// POST             /user/register
-// GET                 /user/login
-// POST             /user/login
-// GET                 /user/me
-//所有HTTP方法 /user/logout
 type UserController struct {
 	//每个请求都由Iris自动绑定上下文，
 	//记住，每次传入请求时，iris每次都会创建一个新的UserController，
