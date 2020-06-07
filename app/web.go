@@ -112,11 +112,11 @@ func initRouter(app *iris.Application) {
 	app.Get("/metrics", iris.FromStd(promhttp.Handler()))
 
 	app.Any("/api/steamapi/{directory:path}", services.ProxyService.ProxyApi)
+	app.Any("/api/steamcommunity/{directory:path}", services.ProxyService.ProxyCommunity)
 
 	mvc.Configure(app.Party("/api"), func(application *mvc.Application) {
 		application.Party("/user").Handle(new(api.UserController))
 		application.Party("/ip").Handle(new(api.IpController))
-		application.Party("/steamcommunity").Handle(new(api.SteamCommunityController))
 	})
 
 }
