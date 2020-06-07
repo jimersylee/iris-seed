@@ -1,0 +1,18 @@
+POST http://localhost:17001/api/ip/register
+Content-Type: application/json
+
+{
+  "ip": "127.0.0.1"
+}
+
+###
+GET http://localhost:17001/api/steamapi/ISteamEconomy/GetAssetClassInfo/v0001?key=A9B409FF274B313352A4B0EA04320D7A&appid=570&classid0=1016791455&instanceid0=3368358963&class_count=1&lang=zh_CN
+
+###
+
+###
+GET http://localhost:17001/api/steamapi
+
+###
+GET http://localhost:17001/api/steamcommunity/ISteamEconomy/GetAssetClassInfo/v0001?key=A9B409FF274B313352A4B0EA04320D7A&appid=570&classid0=1016791455&instanceid0=3368358963&class_count=1&lang=zh_CN
+

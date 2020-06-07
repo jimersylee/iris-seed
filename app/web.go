@@ -11,6 +11,7 @@ import (
 	"github.com/jimersylee/iris-seed/commons/web_session"
 	"github.com/jimersylee/iris-seed/config"
 	"github.com/jimersylee/iris-seed/models"
+	"github.com/jimersylee/iris-seed/services"
 	"github.com/jimersylee/iris-seed/web/api"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
@@ -110,11 +111,18 @@ func initRouter(app *iris.Application) {
 	})
 	app.Get("/metrics", iris.FromStd(promhttp.Handler()))
 
+	app.Any("/api/steamapi/{directory:path}", services.ProxyService.ProxyApi)
+
 	mvc.Configure(app.Party("/api"), func(application *mvc.Application) {
 		application.Party("/user").Handle(new(api.UserController))
-		application.Party("/book").Handle(new(api.BookController))
-		application.Party("/note").Handle(new(api.NoteController))
+		application.Party("/ip").Handle(new(api.IpController))
+		application.Party("/steamcommunity").Handle(new(api.SteamCommunityController))
 	})
+
+}
+func myAuthMiddlewareHandler(ctx iris.Context) {
+	ctx.WriteString("Authentication failed")
+	ctx.Next() //继续执行后续的handler
 }
 
 //初始化文档
