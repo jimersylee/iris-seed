@@ -56,6 +56,12 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	ip := ipModel.Ip
 	IpService.incrRequestTimes(ip)
 	res := p.fly(ip, webUrl)
+	res.Body.Close()
+	if res == nil {
+		//请求steam失败
+		res = new(http.Response)
+		res.StatusCode = 500
+	}
 	cache.ProxyCache.IncrHttpStatusTimesByIpAndStatus(ip, res.StatusCode)
 
 	for key, value := range res.Header {
@@ -74,7 +80,6 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	} else {
 		io.Copy(ctx.ResponseWriter(), res.Body)
 	}
-	res.Body.Close()
 
 }
 
@@ -177,8 +182,9 @@ func (this *ProxyServiceImpl) CheckIpStatus() {
 	for _, ip := range all {
 		needToBeBanned := cache.ProxyCache.CalcIpNeedToBeBanned(ip)
 		if needToBeBanned == true {
-			//从数据库中删除
+			//从数据库和缓存中删除
 			IpService.DeleteByIp(ip)
+			cache.ProxyCache.IpPoolDel(ip)
 			this.ChangeIp(ip)
 		}
 	}
