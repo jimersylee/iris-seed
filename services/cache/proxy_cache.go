@@ -4,11 +4,16 @@ import (
 	"github.com/go-redis/redis/v7"
 	"github.com/jimersylee/iris-seed/commons/redis_manager"
 	"github.com/sirupsen/logrus"
+	"strconv"
 )
 
 var (
-	REDIS_KEY_429     = "ip:429:"
-	REDIS_KEY_IP_POOL = "ip:pool"
+	REDIS_KEY_IP_2_HASH = "ip:hash:"
+	REDIS_KEY_IP_POOL   = "ip:pool"
+	//错误次数出现的次数阈值
+	ERROR_TIMES_THRESHOLD = 10
+	//错误次数统计间隔
+	ERROR_TIMES_INTERVAL_SECONDS = 30
 )
 
 var ProxyCache *proxyCache
@@ -49,13 +54,31 @@ func (this *proxyCache) Delete(token string) {
 	logrus.Info("token:" + token)
 	this.redisClient.Del(token)
 }
-func (this *proxyCache) incr429TimesByIp(ip string) {
+func (this *proxyCache) incrErrorTimesByIp(ip string, httpStatus int) {
 	if UserTokenCache == nil {
 		this = newProxyCache()
 	}
-	this.redisClient.Incr("")
+	this.redisClient.HIncrBy(REDIS_KEY_IP_2_HASH+ip, strconv.Itoa(httpStatus), 1)
 }
-
+func (this *proxyCache) CalcIpNeedToBeBanned(ip string) bool {
+	if UserTokenCache == nil {
+		this = newProxyCache()
+	}
+	result, err := this.redisClient.HGetAll(REDIS_KEY_IP_2_HASH + ip).Result()
+	if err != nil {
+		return false
+	}
+	totalTimes := 0
+	for _, v := range result {
+		times, _ := strconv.Atoi(v)
+		totalTimes += times
+	}
+	if totalTimes > ERROR_TIMES_THRESHOLD {
+		logrus.Infof("CalcIpNeedToBeBanned,need to ban，ip:%s,error times:%d", ip, totalTimes)
+		return true
+	}
+	return false
+}
 func (this *proxyCache) IpPoolAdd(ip string) {
 	if UserTokenCache == nil {
 		this = newProxyCache()

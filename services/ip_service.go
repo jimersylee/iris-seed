@@ -48,8 +48,8 @@ func (this *ipService) Create(t *models.Ip) error {
 	if temp != nil {
 		return nil
 	}
-	t.CreateAt = time.Now()
-	t.UpdateAt = time.Now()
+	t.CreateAt = time.Now().Unix()
+	t.UpdateAt = time.Now().Unix()
 	t.Status = 1
 	return repositories.IpRepository.Create(db.GetDB(), t)
 }
@@ -69,6 +69,13 @@ func (this *ipService) UpdateColumn(id int64, name string, value interface{}) er
 func (this *ipService) Delete(id int64) {
 	repositories.IpRepository.Delete(db.GetDB(), id)
 }
+func (this *ipService) DeleteByIp(ip string) {
+	one := repositories.IpRepository.FindOne(db.GetDB(), commons.NewSqlCnd().Eq("ip", ip))
+	if one != nil {
+		repositories.IpRepository.Delete(db.GetDB(), one.ID)
+	}
+
+}
 
 func (this *ipService) incrRequestTimes(ip string) {
 	modelIp := repositories.IpRepository.FindOne(db.GetDB(), commons.NewSqlCnd().Eq("ip", ip))
@@ -76,7 +83,7 @@ func (this *ipService) incrRequestTimes(ip string) {
 		return
 	}
 	modelIp.RequestTimes = modelIp.RequestTimes + 1
-	modelIp.UpdateAt = time.Now()
+	modelIp.UpdateAt = time.Now().Unix()
 	err := repositories.IpRepository.Update(db.GetDB(), modelIp)
 	if err != nil {
 		logrus.Errorf("incrRequestTimes failed,err:%s", err)

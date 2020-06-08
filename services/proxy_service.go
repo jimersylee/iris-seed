@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"github.com/jimersylee/iris-seed/commons"
+	"github.com/jimersylee/iris-seed/services/cache"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -95,9 +96,9 @@ func (this *ProxyServiceImpl) ChangeIp(ip string) {
 	changeIpUrl := "http://" + ip + ":60001/adsl-start"
 	get, err := this._get(changeIpUrl, nil, nil)
 	if err != nil {
-		logrus.Errorf("ChangeIp err:%s", err)
+		logrus.Errorf("ChangeIp err:[%s]", err)
 	}
-	logrus.Infof("ChangeIp response:%s", get.Body)
+	logrus.Infof("ChangeIp response:[%s]", get.Body)
 
 }
 func (this *ProxyServiceImpl) _get(url string, params map[string]string, headers map[string]string) (*http.Response, error) {
@@ -148,10 +149,20 @@ func (this *ProxyServiceImpl) CheckIpAlive() {
 
 //检查ip状态，429，500等统计数据
 func (this *ProxyServiceImpl) CheckIpStatus() {
-
+	all := cache.ProxyCache.IpPoolGetAll()
+	logrus.Info("CheckIpStatus:", all)
+	for _, ip := range all {
+		needToBeBanned := cache.ProxyCache.CalcIpNeedToBeBanned(ip)
+		if needToBeBanned == true {
+			//从数据库中删除
+			IpService.DeleteByIp(ip)
+			this.ChangeIp(ip)
+		}
+	}
 }
 
 //删除无用的ip
 func (this *ProxyServiceImpl) DeleteUselessIp() {
-
+	IpService.Find(commons.NewSqlCnd().Lt("update_at"))
+	time.Now().Unix()
 }
