@@ -18,8 +18,6 @@ import (
 	"github.com/kataras/iris/middleware/recover"
 	"github.com/kataras/iris/mvc"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"math/rand"
-	"time"
 )
 
 func RunApp() {
@@ -65,11 +63,12 @@ func initIris() *iris.Application {
 	app.OnErrorCode(iris.StatusNotFound, func(ctx iris.Context) {
 		_, _ = ctx.Writef("Not Found")
 	})
-	app.OnAnyErrorCode(func(ctx iris.Context) {
-		ctx.ViewData("Message", ctx.Values().
-			GetStringDefault("message", "The page you're looking for doesn't exist"))
-		_ = ctx.View("shared/error.html")
-	})
+	//app.OnAnyErrorCode(func(ctx iris.Context) {
+	//	ctx.ViewData("Message", ctx.Values().
+	//		GetStringDefault("message", "The page you're looking for doesn't exist"))
+	//	_ = ctx.View("shared/error.html")
+	//
+	//})
 
 	// Load the template files.
 	tmpl := iris.HTML("./web/views", ".html").
@@ -99,9 +98,7 @@ func initPrometheus(app *iris.Application) {
 //初始化路由
 func initRouter(app *iris.Application) {
 	app.Handle("GET", "/", func(ctx iris.Context) {
-		sleep := rand.Intn(4999) + 1
-		time.Sleep(time.Duration(sleep) * time.Millisecond)
-		_, _ = ctx.Writef("Slept for %d milliseconds", sleep)
+		_, _ = ctx.WriteString("Hello world!")
 	})
 	app.Get("/ping", func(ctx iris.Context) {
 		_, _ = ctx.WriteString("pong")
@@ -119,10 +116,6 @@ func initRouter(app *iris.Application) {
 		application.Party("/ip").Handle(new(api.IpController))
 	})
 
-}
-func myAuthMiddlewareHandler(ctx iris.Context) {
-	ctx.WriteString("Authentication failed")
-	ctx.Next() //继续执行后续的handler
 }
 
 //初始化文档

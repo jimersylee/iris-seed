@@ -16,3 +16,14 @@ GET http://localhost:17001/api/steamapi
 ###
 GET http://localhost:17001/api/steamcommunity/ISteamEconomy/GetAssetClassInfo/v0001?key=A9B409FF274B313352A4B0EA04320D7A&appid=570&classid0=1016791455&instanceid0=3368358963&class_count=1&lang=zh_CN
 
+### 根据id获取ip
+GET http://localhost:17001/api/ip/1
+
+### 注册ip
+POST http://localhost:17001/api/ip/create
+Content-Type: application/json
+
+{
+  "ip": "127.0.0.2",
+  "port": 60002
+}
