@@ -97,6 +97,7 @@ func (this *ProxyServiceImpl) ChangeIp(ip string) {
 	get, err := this._get(changeIpUrl, nil, nil)
 	if err != nil {
 		logrus.Errorf("ChangeIp err:[%s]", err)
+		return
 	}
 	logrus.Infof("ChangeIp response:[%s]", get.Body)
 
@@ -128,13 +129,21 @@ func (this *ProxyServiceImpl) _get(url string, params map[string]string, headers
 	return client.Do(req)
 }
 
+func (this *ProxyServiceImpl) AllCheckTask() {
+	this.CheckIpAlive()
+	this.CheckIpStatus()
+	this.DeleteUselessIp()
+}
+
 //检测ip连通状态
 func (this *ProxyServiceImpl) CheckIpAlive() {
-
+	logrus.Info("start to check ip Alive")
 	results := IpService.Find(commons.NewSqlCnd())
 	for _, v := range results {
 		address := v.Ip + ":" + strconv.Itoa(v.Port)
-		dial, err := net.Dial("tcp", address)
+		logrus.Debug("check ip alive,address:" + address)
+		dialer := net.Dialer{Timeout: 2}
+		dial, err := dialer.Dial("tcp", address)
 		if err != nil {
 			logrus.Warnf("this ip down：%s,err:%s", address, err)
 			//既然不通了，那就删了
@@ -144,11 +153,13 @@ func (this *ProxyServiceImpl) CheckIpAlive() {
 		defer dial.Close()
 
 	}
+	logrus.Info("finish to check ip Alive")
 
 }
 
 //检查ip状态，429，500等统计数据
 func (this *ProxyServiceImpl) CheckIpStatus() {
+	logrus.Info("start to check ip status")
 	all := cache.ProxyCache.IpPoolGetAll()
 	logrus.Info("CheckIpStatus:", all)
 	for _, ip := range all {
@@ -161,8 +172,11 @@ func (this *ProxyServiceImpl) CheckIpStatus() {
 	}
 }
 
-//删除无用的ip
+//定时删除无用的ip，N小时都没使用过的
 func (this *ProxyServiceImpl) DeleteUselessIp() {
-	IpService.Find(commons.NewSqlCnd().Lt("update_at"))
-	time.Now().Unix()
+	logrus.Info("start to delete useless ip")
+	ips := IpService.Find(commons.NewSqlCnd().Lt("update_at", time.Now().Unix()-3600*1))
+	for _, v := range ips {
+		IpService.Delete(v.ID)
+	}
 }

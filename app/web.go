@@ -36,6 +36,7 @@ func RunApp() {
 	web_session.InitSessionManager()
 	//初始化api token 管理
 	api_token.InitTokenManager()
+	initTask()
 
 	_ = app.Run(iris.Addr(":"+config.Conf.Port), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)
 }
@@ -145,5 +146,18 @@ func initDoc(app *iris.Application) {
 	yaag.Init(&yaag.Config{On: true, DocTitle: "iris-seed", DocPath: "apidoc.html", BaseUrls: map[string]string{"Production": "", "Stage": ""}})
 	app.Use(irisyaag.New())
 	//api文档自动生成结束
+
+}
+
+func initTask() {
+	var ch chan int
+	//定时任务
+	ticker := time.NewTicker(time.Second * 10)
+	go func() {
+		for range ticker.C {
+			services.ProxyService.AllCheckTask()
+		}
+		ch <- 1
+	}()
 
 }
