@@ -2,7 +2,6 @@ package services
 
 import (
 	"crypto/tls"
-	"fmt"
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/jimersylee/iris-seed/commons/db"
 	"github.com/jimersylee/iris-seed/models"
@@ -100,6 +99,5 @@ func (i *ipService) Proxy(ip string, webUrl string) (content string, statusCode 
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
 	bodyString := string(body)
-	fmt.Println(bodyString)
 	return bodyString, resp.StatusCode
 }
