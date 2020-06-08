@@ -90,7 +90,7 @@ func (this *proxyCache) GetStatistic() *entities.StatisticDTO {
 	allIps := this.IpPoolGetAll()
 	statisticDTO := new(entities.StatisticDTO)
 	for _, ip := range allIps {
-		logrus.Debug(REDIS_KEY_IP_2_HASH + ip)
+		logrus.Info("GetStatistic:" + REDIS_KEY_IP_2_HASH + ip)
 		result, err := this.redisClient.HGetAll(REDIS_KEY_IP_2_HASH + ip).Result()
 		if err != nil {
 			return nil

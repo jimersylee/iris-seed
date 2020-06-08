@@ -69,12 +69,11 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	if logrus.IsLevelEnabled(logrus.DebugLevel) {
 		all, _ := ioutil.ReadAll(res.Body)
 		body := string(all)
-		logrus.Debug("body=======" + body)
+		logrus.Info("body=======" + body)
 		_, _ = ctx.ResponseWriter().WriteString(body)
 	} else {
 		io.Copy(ctx.ResponseWriter(), res.Body)
 	}
-
 	res.Body.Close()
 
 }
@@ -100,9 +99,7 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) *http.Response {
 		logrus.Errorf("访问steam出错，error:%s", err)
 		return nil
 	}
-	//bytes, err := ioutil.ReadAll(resp.Body)
-	//str := string(bytes)
-	//logrus.Infof("获取到steam内容,[%s]", str)
+	defer client.CloseIdleConnections()
 	return resp
 }
 
