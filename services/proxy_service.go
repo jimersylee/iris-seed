@@ -56,7 +56,7 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	ip := ipModel.Ip
 	IpService.incrRequestTimes(ip)
 	res := p.fly(ip, webUrl)
-	res.Body.Close()
+	defer res.Body.Close()
 	if res == nil {
 		//请求steam失败
 		res = new(http.Response)
