@@ -152,7 +152,7 @@ func initDoc(app *iris.Application) {
 func initTask() {
 	var ch chan int
 	//定时任务
-	ticker := time.NewTicker(time.Second * 10)
+	ticker := time.NewTicker(time.Second * 30)
 	go func() {
 		for range ticker.C {
 			services.ProxyService.AllCheckTask()
