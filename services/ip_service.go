@@ -51,6 +51,7 @@ func (this *ipService) Create(t *models.Ip) error {
 	t.CreateAt = time.Now().Unix()
 	t.UpdateAt = time.Now().Unix()
 	t.Status = 1
+	t.Port = 60002
 	return repositories.IpRepository.Create(db.GetDB(), t)
 }
 
