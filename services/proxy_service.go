@@ -7,6 +7,7 @@ import (
 	"github.com/jimersylee/iris-seed/services/cache"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -44,7 +45,7 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 		uriNeed = uri[len("/api/steamcommunity/"):]
 		webUrl = "http://steamcommunity.com/" + uriNeed
 	}
-	//todo：找出能用的ip
+	//找出能用的ip
 	ipModel := IpService.FindOne(commons.NewSqlCnd().Where("status=1").Asc("request_times"))
 	logrus.Infof("ipModel:%s,uri:%s,uriNeed:%s,webUrl:%s", ipModel, uri, uriNeed, webUrl)
 	if ipModel == nil {
@@ -54,14 +55,31 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	}
 	ip := ipModel.Ip
 	IpService.incrRequestTimes(ip)
-	responseStr, statusCode := p.fly(ip, webUrl)
-	//logrus.Infof("steam返回数据：%s", responseStr)
-	ctx.ResponseWriter().WriteHeader(statusCode)
-	_, _ = ctx.WriteString(responseStr)
+	res := p.fly(ip, webUrl)
+	cache.ProxyCache.IncrHttpStatusTimesByIpAndStatus(ip, res.StatusCode)
+
+	for key, value := range res.Header {
+		for _, v := range value {
+			ctx.ResponseWriter().Header().Add(key, v)
+		}
+	}
+
+	ctx.ResponseWriter().WriteHeader(res.StatusCode)
+
+	if logrus.IsLevelEnabled(logrus.DebugLevel) {
+		all, _ := ioutil.ReadAll(res.Body)
+		body := string(all)
+		logrus.Debug("body=======" + body)
+		_, _ = ctx.ResponseWriter().WriteString(body)
+	} else {
+		io.Copy(ctx.ResponseWriter(), res.Body)
+	}
+
+	res.Body.Close()
 
 }
 
-func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, statusCode int) {
+func (p *ProxyServiceImpl) fly(ip string, webUrl string) *http.Response {
 	proxyUrl := "http://" + ip + ":60002"
 	logrus.Info("use " + proxyUrl + " to proxy")
 	proxy, _ := url.Parse(proxyUrl)
@@ -71,7 +89,6 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, status
 	}
 
 	request, _ := http.NewRequest("GET", webUrl, nil)
-	request.Header.Set("Connection", "keep-alive")
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
 	client := &http.Client{
 		Transport: tr,
@@ -81,12 +98,12 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, status
 	resp, err := client.Do(request)
 	if err != nil {
 		logrus.Errorf("访问steam出错，error:%s", err)
-		return "", 600
+		return nil
 	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	bodyString := string(body)
-	return bodyString, resp.StatusCode
+	//bytes, err := ioutil.ReadAll(resp.Body)
+	//str := string(bytes)
+	//logrus.Infof("获取到steam内容,[%s]", str)
+	return resp
 }
 
 //let agent change ip
@@ -141,8 +158,8 @@ func (this *ProxyServiceImpl) CheckIpAlive() {
 	for _, v := range results {
 		address := v.Ip + ":" + strconv.Itoa(v.Port)
 		logrus.Debug("check ip alive,address:" + address)
-		url := "http://" + address
-		_, err := this._get(url, nil, nil)
+		urlToCheck := "http://" + address
+		_, err := this._get(urlToCheck, nil, nil)
 		if err != nil {
 			logrus.Warnf("this ip down：%s,err:%s", address, err)
 			//既然不通了，那就删了

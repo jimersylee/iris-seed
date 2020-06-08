@@ -5,6 +5,7 @@ import (
 	"github.com/jimersylee/iris-seed/commons/db"
 	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/repositories"
+	"github.com/jimersylee/iris-seed/services/cache"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -52,7 +53,12 @@ func (this *ipService) Create(t *models.Ip) error {
 	t.UpdateAt = time.Now().Unix()
 	t.Status = 1
 	t.Port = 60002
-	return repositories.IpRepository.Create(db.GetDB(), t)
+	err := repositories.IpRepository.Create(db.GetDB(), t)
+	if err != nil {
+		return err
+	}
+	cache.ProxyCache.IpPoolAdd(t.Ip)
+	return nil
 }
 
 func (this *ipService) Update(t *models.Ip) error {

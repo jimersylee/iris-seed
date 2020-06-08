@@ -3,7 +3,9 @@ package cache
 import (
 	"github.com/go-redis/redis/v7"
 	"github.com/jimersylee/iris-seed/commons/redis_manager"
+	"github.com/jimersylee/iris-seed/entities"
 	"github.com/sirupsen/logrus"
+	"net/http"
 	"strconv"
 )
 
@@ -27,34 +29,7 @@ type proxyCache struct {
 	redisClient *redis.Client
 }
 
-func (this *proxyCache) GetUserIdByToken(token string) int64 {
-	if UserTokenCache == nil {
-		this = newProxyCache()
-	}
-	if len(token) == 0 {
-		return 0
-	}
-	tokeneee := this.redisClient.Get(token)
-	if tokeneee == nil {
-		return 0
-	}
-	userId, err := tokeneee.Int64()
-	if err != nil {
-		return 0
-	}
-
-	return userId
-
-}
-
-func (this *proxyCache) Delete(token string) {
-	if UserTokenCache == nil {
-		this = newProxyCache()
-	}
-	logrus.Info("token:" + token)
-	this.redisClient.Del(token)
-}
-func (this *proxyCache) incrErrorTimesByIp(ip string, httpStatus int) {
+func (this *proxyCache) IncrHttpStatusTimesByIpAndStatus(ip string, httpStatus int) {
 	if UserTokenCache == nil {
 		this = newProxyCache()
 	}
@@ -69,9 +44,13 @@ func (this *proxyCache) CalcIpNeedToBeBanned(ip string) bool {
 		return false
 	}
 	totalTimes := 0
-	for _, v := range result {
-		times, _ := strconv.Atoi(v)
-		totalTimes += times
+	for httpStatus, times := range result {
+		times, _ := strconv.Atoi(times)
+		httpStatusInt, _ := strconv.Atoi(httpStatus)
+		//不等于200的计入失败总次数
+		if httpStatusInt != http.StatusOK {
+			totalTimes += times
+		}
 	}
 	if totalTimes > ERROR_TIMES_THRESHOLD {
 		logrus.Infof("CalcIpNeedToBeBanned,need to ban，ip:%s,error times:%d", ip, totalTimes)
@@ -104,4 +83,29 @@ func (this *proxyCache) GetRedisClient() *redis.Client {
 		this = newProxyCache()
 	}
 	return this.redisClient
+}
+
+//获取统计数据
+func (this *proxyCache) GetStatistic() *entities.StatisticDTO {
+	allIps := this.IpPoolGetAll()
+	statisticDTO := new(entities.StatisticDTO)
+	for _, ip := range allIps {
+		logrus.Debug(REDIS_KEY_IP_2_HASH + ip)
+		result, err := this.redisClient.HGetAll(REDIS_KEY_IP_2_HASH + ip).Result()
+		if err != nil {
+			return nil
+		}
+		oneIp := new(entities.OneIp)
+		for httpStatus, times := range result {
+			times, _ := strconv.Atoi(times)
+			httpStatusInt, _ := strconv.Atoi(httpStatus)
+			oneCode := new(entities.OneCode)
+			oneCode.Code = httpStatusInt
+			oneCode.Times = times
+			_ = append(oneIp.CodeStatus, oneCode)
+		}
+		_ = append(statisticDTO.Ips, oneIp)
+	}
+
+	return statisticDTO
 }

@@ -5,7 +5,9 @@ import (
 	"github.com/jimersylee/iris-seed/commons/response"
 	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/services"
+	"github.com/jimersylee/iris-seed/services/cache"
 	"github.com/kataras/iris"
+	"github.com/sirupsen/logrus"
 )
 
 type IpController struct {
@@ -59,4 +61,10 @@ func (this *IpController) PostUpdate() *response.WebApiRes {
 		return response.JsonErrorMsg(err.Error())
 	}
 	return response.JsonData(t)
+}
+
+//统计数据
+func (this *IpController) GetStat() *response.WebApiRes {
+	logrus.Info(cache.ProxyCache.GetStatistic())
+	return response.JsonSuccess()
 }
