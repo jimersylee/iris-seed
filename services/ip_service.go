@@ -44,6 +44,7 @@ func (this *ipService) FindPageByCnd(cnd *commons.SqlCnd) (list []models.Ip, pag
 }
 
 func (this *ipService) Create(t *models.Ip) error {
+	cache.ProxyCache.IpPoolAdd(t.Ip)
 	temp := repositories.IpRepository.FindOne(db.GetDB(), commons.NewSqlCnd().Eq("ip", t.Ip))
 	logrus.Info("find result", temp)
 	if temp != nil {
@@ -57,7 +58,7 @@ func (this *ipService) Create(t *models.Ip) error {
 	if err != nil {
 		return err
 	}
-	cache.ProxyCache.IpPoolAdd(t.Ip)
+
 	return nil
 }
 
