@@ -24,26 +24,26 @@ type ProxyServiceImpl struct {
 
 func (p *ProxyServiceImpl) ProxyCommunity(ctx iris.Context) {
 	uri := ctx.Request().RequestURI
-	fmt.Println(uri)
-	uriNeed := uri[len("/api/steamcommunity.com/") : len(uri)-1]
-	route := ctx.GetCurrentRoute()
-	fmt.Println(route)
-	fmt.Println(uriNeed)
+	uriNeed := uri[len("/api/steamcommunity/") : len(uri)-1]
 	//todo：找出能用的ip
-	ip := "182.255.44.92"
+	ipModel := IpService.FindOne(commons.NewSqlCnd().Where("status=1").Asc("request_times"))
+	logrus.Info("ipModel:", ipModel)
+	if ipModel == nil {
+		logrus.Error("can't find available ip")
+		ctx.ResponseWriter().WriteHeader(500)
+		return
+	}
+	ip := ipModel.Ip
 	webUrl := "http://steamcommunity.com/" + uriNeed
 	responseStr, statusCode := IpService.Proxy(ip, webUrl)
+	fmt.Println(responseStr)
 	ctx.ResponseWriter().WriteHeader(statusCode)
 	ctx.WriteString(responseStr)
 }
 
 func (p *ProxyServiceImpl) ProxyApi(ctx iris.Context) {
 	uri := ctx.Request().RequestURI
-	fmt.Println(uri)
 	uriNeed := uri[len("/api/steamapi/") : len(uri)-1]
-	route := ctx.GetCurrentRoute()
-	fmt.Println(route)
-	fmt.Println(uriNeed)
 	//todo：找出能用的ip
 	ipModel := IpService.FindOne(commons.NewSqlCnd().Where("status=1").Asc("request_times"))
 	logrus.Info("ipModel:", ipModel)
