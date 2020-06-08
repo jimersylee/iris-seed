@@ -1,15 +1,11 @@
 package services
 
 import (
-	"crypto/tls"
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/jimersylee/iris-seed/commons/db"
 	"github.com/jimersylee/iris-seed/models"
 	"github.com/jimersylee/iris-seed/repositories"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -72,32 +68,4 @@ func (this *ipService) UpdateColumn(id int64, name string, value interface{}) er
 
 func (this *ipService) Delete(id int64) {
 	repositories.IpRepository.Delete(db.GetDB(), id)
-}
-
-func (i *ipService) Proxy(ip string, webUrl string) (content string, statusCode int) {
-	proxyUrl := "http://" + ip + ":60002"
-	logrus.Info("use " + proxyUrl + " to proxy")
-	proxy, _ := url.Parse(proxyUrl)
-	tr := &http.Transport{
-		Proxy:           http.ProxyURL(proxy),
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	request, _ := http.NewRequest("GET", webUrl, nil)
-	request.Header.Set("Connection", "keep-alive")
-	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
-	client := &http.Client{
-		Transport: tr,
-		Timeout:   time.Second * 5, //超时时间
-	}
-
-	resp, err := client.Do(request)
-	if err != nil {
-		logrus.Errorf("访问steam出错，error:%s", err)
-		return "", 500
-	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	bodyString := string(body)
-	return bodyString, resp.StatusCode
 }

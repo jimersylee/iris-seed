@@ -1,10 +1,15 @@
 package services
 
 import (
+	"crypto/tls"
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"strings"
+	"time"
 )
 
 type ProxyInterface interface {
@@ -44,9 +49,37 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 		return
 	}
 	ip := ipModel.Ip
-	responseStr, statusCode := IpService.Proxy(ip, webUrl)
+	responseStr, statusCode := p.fly(ip, webUrl)
 	logrus.Infof("steam返回数据：%s", responseStr)
 	ctx.ResponseWriter().WriteHeader(statusCode)
 	ctx.WriteString(responseStr)
 
+}
+
+func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, statusCode int) {
+	proxyUrl := "http://" + ip + ":60002"
+	logrus.Info("use " + proxyUrl + " to proxy")
+	proxy, _ := url.Parse(proxyUrl)
+	tr := &http.Transport{
+		Proxy:           http.ProxyURL(proxy),
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	request, _ := http.NewRequest("GET", webUrl, nil)
+	request.Header.Set("Connection", "keep-alive")
+	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
+	client := &http.Client{
+		Transport: tr,
+		Timeout:   time.Second * 5, //超时时间
+	}
+
+	resp, err := client.Do(request)
+	if err != nil {
+		logrus.Errorf("访问steam出错，error:%s", err)
+		return "", 500
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	bodyString := string(body)
+	return bodyString, resp.StatusCode
 }
