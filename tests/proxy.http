@@ -27,3 +27,11 @@ Content-Type: application/json
   "ip": "127.0.0.2",
   "port": 60002
 }
+
+###
+POST http://47.57.94.169:17001/api/ip/create
+Content-Type: application/json
+
+{
+  "ip": "182.255.44.92"
+}

@@ -53,6 +53,8 @@ func (this *ipService) Create(t *models.Ip) error {
 	if temp != nil {
 		return nil
 	}
+	t.CreateAt = time.Now()
+	t.UpdateAt = time.Now()
 	return repositories.IpRepository.Create(db.GetDB(), t)
 }
 
