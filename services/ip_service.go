@@ -47,7 +47,7 @@ func (this *ipService) FindPageByCnd(cnd *commons.SqlCnd) (list []models.Ip, pag
 }
 
 func (this *ipService) Create(t *models.Ip) error {
-	temp := repositories.IpRepository.FindOne(db.GetDB(), commons.NewSqlCnd().Eq("ip", "127.0.0.2"))
+	temp := repositories.IpRepository.FindOne(db.GetDB(), commons.NewSqlCnd().Eq("ip", t.Ip))
 	logrus.Info("find result", temp)
 	if temp != nil {
 		return nil
