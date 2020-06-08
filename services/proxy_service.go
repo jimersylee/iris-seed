@@ -51,7 +51,7 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	count := len(ipModels)
 	if count == 0 {
 		logrus.Error("can't find available ip")
-		ctx.ResponseWriter().WriteHeader(500)
+		ctx.ResponseWriter().WriteHeader(600)
 		return
 	}
 
