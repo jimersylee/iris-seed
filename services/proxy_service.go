@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -46,13 +47,17 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 		webUrl = "http://steamcommunity.com/" + uriNeed
 	}
 	//找出能用的ip
-	ipModel := IpService.FindOne(commons.NewSqlCnd().Where("status=1").Asc("request_times"))
-	logrus.Infof("ipModel:%s,uri:%s,uriNeed:%s,webUrl:%s", ipModel, uri, uriNeed, webUrl)
-	if ipModel == nil {
+	ipModels := IpService.Find(commons.NewSqlCnd().Where("status=1").Asc("request_times").Limit(2))
+	count := len(ipModels)
+	if count == 0 {
 		logrus.Error("can't find available ip")
 		ctx.ResponseWriter().WriteHeader(500)
 		return
 	}
+
+	ipModel := ipModels[rand.Intn(count)]
+	logrus.Infof("ipModel:%s,uri:%s,uriNeed:%s,webUrl:%s", ipModel, uri, uriNeed, webUrl)
+
 	ip := ipModel.Ip
 	IpService.incrRequestTimes(ip)
 	res := p.fly(ip, webUrl)
