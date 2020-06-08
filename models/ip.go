@@ -12,5 +12,6 @@ type Ip struct {
 	//状态 1：可用 0：不可用
 	Status   int       `json:"status" form:"status"`
 	CreateAt time.Time `json:"create_at" form:"create_at"`
-	UpdateAt time.Time
+	UpdateAt time.Time `json:"update_at" form:"update_at"`
+	Hostname string    `json:"hostname" form:"hostname"`
 }

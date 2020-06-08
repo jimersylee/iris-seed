@@ -69,3 +69,16 @@ func (this *ipService) UpdateColumn(id int64, name string, value interface{}) er
 func (this *ipService) Delete(id int64) {
 	repositories.IpRepository.Delete(db.GetDB(), id)
 }
+
+func (this *ipService) incrRequestTimes(ip string) {
+	modelIp := repositories.IpRepository.FindOne(db.GetDB(), commons.NewSqlCnd().Eq("ip", ip))
+	if modelIp == nil {
+		return
+	}
+	modelIp.RequestTimes = modelIp.RequestTimes + 1
+	modelIp.UpdateAt = time.Now()
+	err := repositories.IpRepository.Update(db.GetDB(), modelIp)
+	if err != nil {
+		logrus.Errorf("incrRequestTimes failed,err:%s", err)
+	}
+}

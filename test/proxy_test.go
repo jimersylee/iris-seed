@@ -1,0 +1,29 @@
+package test
+
+import (
+	"github.com/jimersylee/iris-seed/app"
+	"github.com/jimersylee/iris-seed/services"
+	"github.com/jimersylee/iris-seed/services/cache"
+	"testing"
+)
+
+func TestIpPool(t *testing.T) {
+	app.RunApp()
+	cache.ProxyCache.IpPoolAdd("127.0.0.1")
+	all := cache.ProxyCache.IpPoolGetAll()
+	for _, v := range all {
+		if v == "127.0.0.1" {
+			t.Log("getAll ok")
+		}
+	}
+	cache.ProxyCache.IpPoolDel("127.0.0.1")
+	all = cache.ProxyCache.IpPoolGetAll()
+	if len(all) > 0 {
+		t.Error("del error")
+	}
+	t.Log("del ok")
+}
+func TestCheckIp(t *testing.T) {
+	app.RunApp()
+	services.ProxyService.CheckIpAlive()
+}

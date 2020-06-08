@@ -6,8 +6,10 @@ import (
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -49,10 +51,11 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 		return
 	}
 	ip := ipModel.Ip
+	IpService.incrRequestTimes(ip)
 	responseStr, statusCode := p.fly(ip, webUrl)
 	logrus.Infof("steam返回数据：%s", responseStr)
 	ctx.ResponseWriter().WriteHeader(statusCode)
-	ctx.WriteString(responseStr)
+	_, _ = ctx.WriteString(responseStr)
 
 }
 
@@ -70,7 +73,7 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, status
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
 	client := &http.Client{
 		Transport: tr,
-		Timeout:   time.Second * 5, //超时时间
+		Timeout:   time.Second * 20, //超时时间
 	}
 
 	resp, err := client.Do(request)
@@ -82,4 +85,38 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, status
 	body, _ := ioutil.ReadAll(resp.Body)
 	bodyString := string(body)
 	return bodyString, resp.StatusCode
+}
+
+//let agent change ip
+func (this *ProxyServiceImpl) ChangeIp() {
+
+}
+
+//检测ip连通状态
+func (this *ProxyServiceImpl) CheckIpAlive() {
+
+	results := IpService.Find(commons.NewSqlCnd())
+	for _, v := range results {
+		address := v.Ip + ":" + strconv.Itoa(v.Port)
+		dial, err := net.Dial("tcp", address)
+		if err != nil {
+			logrus.Warnf("this ip down：%s,err:%s", address, err)
+			//既然不通了，那就删了
+			IpService.Delete(v.ID)
+			continue
+		}
+		defer dial.Close()
+
+	}
+
+}
+
+//检查ip状态，429，500等统计数据
+func (this *ProxyServiceImpl) CheckIpStatus() {
+
+}
+
+//删除无用的ip
+func (this *ProxyServiceImpl) DeleteUselessIp() {
+
 }
