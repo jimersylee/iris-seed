@@ -55,7 +55,7 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	ip := ipModel.Ip
 	IpService.incrRequestTimes(ip)
 	responseStr, statusCode := p.fly(ip, webUrl)
-	logrus.Infof("steam返回数据：%s", responseStr)
+	//logrus.Infof("steam返回数据：%s", responseStr)
 	ctx.ResponseWriter().WriteHeader(statusCode)
 	_, _ = ctx.WriteString(responseStr)
 
