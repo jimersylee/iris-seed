@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -142,15 +141,14 @@ func (this *ProxyServiceImpl) CheckIpAlive() {
 	for _, v := range results {
 		address := v.Ip + ":" + strconv.Itoa(v.Port)
 		logrus.Debug("check ip alive,address:" + address)
-		dialer := net.Dialer{Timeout: 2}
-		dial, err := dialer.Dial("tcp", address)
+		url := "http://" + address
+		_, err := this._get(url, nil, nil)
 		if err != nil {
 			logrus.Warnf("this ip down：%s,err:%s", address, err)
 			//既然不通了，那就删了
 			IpService.Delete(v.ID)
 			continue
 		}
-		defer dial.Close()
 
 	}
 	logrus.Info("finish to check ip Alive")
