@@ -2,10 +2,12 @@ package services
 
 import (
 	"crypto/tls"
+	"errors"
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -73,13 +75,13 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, status
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
 	client := &http.Client{
 		Transport: tr,
-		Timeout:   time.Second * 20, //超时时间
+		Timeout:   time.Second * 10, //超时时间
 	}
 
 	resp, err := client.Do(request)
 	if err != nil {
 		logrus.Errorf("访问steam出错，error:%s", err)
-		return "", 500
+		return "", 600
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -88,8 +90,41 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) (content string, status
 }
 
 //let agent change ip
-func (this *ProxyServiceImpl) ChangeIp() {
+func (this *ProxyServiceImpl) ChangeIp(ip string) {
+	// 调用管理接口换ip
+	changeIpUrl := "http://" + ip + ":60001/adsl-start"
+	get, err := this._get(changeIpUrl, nil, nil)
+	if err != nil {
+		logrus.Errorf("ChangeIp err:%s", err)
+	}
+	logrus.Infof("ChangeIp response:%s", get.Body)
 
+}
+func (this *ProxyServiceImpl) _get(url string, params map[string]string, headers map[string]string) (*http.Response, error) {
+	//new request
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		log.Println(err)
+		return nil, errors.New("new request is fail ")
+	}
+	//add params
+	q := req.URL.Query()
+	if params != nil {
+		for key, val := range params {
+			q.Add(key, val)
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+	//add headers
+	if headers != nil {
+		for key, val := range headers {
+			req.Header.Add(key, val)
+		}
+	}
+	//http client
+	client := &http.Client{}
+	logrus.Infof("Go %s URL : %s \n", http.MethodGet, req.URL.String())
+	return client.Do(req)
 }
 
 //检测ip连通状态

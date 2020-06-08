@@ -27,3 +27,8 @@ func TestCheckIp(t *testing.T) {
 	app.RunApp()
 	services.ProxyService.CheckIpAlive()
 }
+
+func TestChangeIp(t *testing.T) {
+	app.RunApp()
+	services.ProxyService.ChangeIp("38.21.249.98")
+}
