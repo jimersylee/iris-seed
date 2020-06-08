@@ -28,7 +28,7 @@ func RunApp() {
 	app := initIris()
 	initLog(app)
 	initPrometheus(app)
-	initDoc(app)
+	//initDoc(app)
 	initRouter(app)
 	initDataSource(app)
 	redis_manager.InitRedisManager()
