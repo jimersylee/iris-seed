@@ -11,22 +11,27 @@ import (
 	"github.com/jimersylee/iris-seed/commons/web_session"
 	"github.com/jimersylee/iris-seed/config"
 	"github.com/jimersylee/iris-seed/models"
+	"github.com/jimersylee/iris-seed/services"
 	"github.com/jimersylee/iris-seed/web/api"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
 	"github.com/kataras/iris/mvc"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"math/rand"
+	"github.com/sirupsen/logrus"
+	"io"
+	"net/http"
+	"os"
 	"time"
 )
 
 func RunApp() {
+	initPprof()
 	initConfig()
 	app := initIris()
 	initLog(app)
 	initPrometheus(app)
-	initDoc(app)
+	//initDoc(app)
 	initRouter(app)
 	initDataSource(app)
 	redis_manager.InitRedisManager()
@@ -34,8 +39,20 @@ func RunApp() {
 	web_session.InitSessionManager()
 	//初始化api token 管理
 	api_token.InitTokenManager()
+	initTask()
 
 	_ = app.Run(iris.Addr(":"+config.Conf.Port), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)
+}
+
+// 初始化性能监控服务
+func initPprof() {
+	go func() {
+		ip := "0.0.0.0:6060"
+		if err := http.ListenAndServe(ip, nil); err != nil {
+			logrus.Errorf("start pprof failed on %s", ip)
+			os.Exit(1)
+		}
+	}()
 }
 
 func initConfig() {
@@ -64,11 +81,12 @@ func initIris() *iris.Application {
 	app.OnErrorCode(iris.StatusNotFound, func(ctx iris.Context) {
 		_, _ = ctx.Writef("Not Found")
 	})
-	app.OnAnyErrorCode(func(ctx iris.Context) {
-		ctx.ViewData("Message", ctx.Values().
-			GetStringDefault("message", "The page you're looking for doesn't exist"))
-		_ = ctx.View("shared/error.html")
-	})
+	//app.OnAnyErrorCode(func(ctx iris.Context) {
+	//	ctx.ViewData("Message", ctx.Values().
+	//		GetStringDefault("message", "The page you're looking for doesn't exist"))
+	//	_ = ctx.View("shared/error.html")
+	//
+	//})
 
 	// Load the template files.
 	tmpl := iris.HTML("./web/views", ".html").
@@ -83,8 +101,35 @@ func initIris() *iris.Application {
 
 //初始化日志
 func initLog(app *iris.Application) {
-	app.Logger().SetLevel("debug")
+
+	f := newLogFile()
+
+	level, err := logrus.ParseLevel(config.Conf.LogLevel)
+	if err != nil {
+		level = logrus.InfoLevel
+	}
+	logrus.SetLevel(level)
+	logrus.SetOutput(io.MultiWriter(f, os.Stdout))
+
+	app.Logger().SetLevel(config.Conf.LogLevel)
+	app.Logger().SetOutput(io.MultiWriter(f, os.Stdout))
 	app.Use(logger.New())
+
+}
+func todayFilename() string {
+	today := time.Now().Format("2006-01-02")
+	return config.Conf.LogPath + "/" + today + ".log"
+}
+
+// 创建打开文件
+func newLogFile() *os.File {
+	filename := todayFilename()
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	return f
 }
 
 //初始化监控
@@ -98,9 +143,7 @@ func initPrometheus(app *iris.Application) {
 //初始化路由
 func initRouter(app *iris.Application) {
 	app.Handle("GET", "/", func(ctx iris.Context) {
-		sleep := rand.Intn(4999) + 1
-		time.Sleep(time.Duration(sleep) * time.Millisecond)
-		_, _ = ctx.Writef("Slept for %d milliseconds", sleep)
+		_, _ = ctx.WriteString("Hello world!")
 	})
 	app.Get("/ping", func(ctx iris.Context) {
 		_, _ = ctx.WriteString("pong")
@@ -110,10 +153,14 @@ func initRouter(app *iris.Application) {
 	})
 	app.Get("/metrics", iris.FromStd(promhttp.Handler()))
 
+	app.Any("/api/steamapi/{directory:path}", services.ProxyService.Proxy)
+	app.Any("/api/steamcommunity/{directory:path}", services.ProxyService.Proxy)
+
 	mvc.Configure(app.Party("/api"), func(application *mvc.Application) {
 		application.Party("/user").Handle(new(api.UserController))
-		application.Party("/book").Handle(new(api.BookController))
+		application.Party("/ip").Handle(new(api.IpController))
 	})
+
 }
 
 //初始化文档
@@ -122,5 +169,18 @@ func initDoc(app *iris.Application) {
 	yaag.Init(&yaag.Config{On: true, DocTitle: "iris-seed", DocPath: "apidoc.html", BaseUrls: map[string]string{"Production": "", "Stage": ""}})
 	app.Use(irisyaag.New())
 	//api文档自动生成结束
+
+}
+
+func initTask() {
+	var ch chan int
+	//定时任务
+	ticker := time.NewTicker(time.Second * 60)
+	go func() {
+		for range ticker.C {
+			services.ProxyService.AllCheckTask()
+		}
+		ch <- 1
+	}()
 
 }

@@ -82,6 +82,21 @@ func lexTags(l *lexer) stateFn {
 	case r == ':':
 		l.ignore()
 		if l.emitWordByType(itemFilter) {
+			r = l.next()
+			if r == ':' {
+				l.ignore()
+				l.emitWordByType(itemFilterSubf)
+				r = l.next()
+			}
+			if r == '(' {
+				l.ignore()
+				l.toStopRune(')', true)
+				l.emit(itemFilterArgs)
+				l.next()
+				l.ignore()
+			} else {
+				l.backup()
+			}
 			return lexFilter
 		}
 		return l.errorf("lexTags: expect filter name")
@@ -121,11 +136,13 @@ func lexTags(l *lexer) stateFn {
 			return lexEndLine
 		}
 		if np == '!' && l.next() == '!' && l.depth == 0 {
+			l.ignore()
 			if l.skipSpaces() != -1 {
-				l.ignore()
 				l.emitLineByType(itemDoctype)
-				return lexEndLine
+			} else {
+				l.emit(itemDoctype)
 			}
+			return lexEndLine
 		}
 		return l.errorf("expect '=' after '!'")
 	case isAlphaNumeric(r):
@@ -226,11 +243,11 @@ func text(l *lexer) stateFn {
 			if sp == '{' {
 				l.interpol(itemCodeBuffered)
 			}
-		case r == '$':
-			sp := l.peek()
-			if sp == '{' {
-				l.interpol(itemCodeBuffered)
-			}
+		// case r == '$':
+		// 	sp := l.peek()
+		// 	if sp == '{' {
+		// 		l.interpol(itemCodeBuffered)
+		// 	}
 		case r == '!':
 			sp := l.peek()
 			if sp == '{' {
@@ -492,21 +509,22 @@ func lexAttr(l *lexer) stateFn {
 				}
 			}
 		case r == '(':
-			b1 += 1
+			// b1 += 1
+			l.toStopRune(')', false)
 		case r == ')':
-			b1 -= 1
-			if b1 == -1 {
-				if b2 != 0 || b3 != 0 {
-					return l.errorf("lexAttrName: mismatched bracket")
-				}
-				l.backup()
-				if l.pos > l.start {
-					l.emit(itemAttr)
-				}
-				l.next()
-				l.emit(itemAttrEnd)
-				return lexAfterTag
+			// b1 -= 1
+			// if b1 == -1 {
+			if b2 != 0 || b3 != 0 {
+				return l.errorf("lexAttrName: mismatched bracket")
 			}
+			l.backup()
+			if l.pos > l.start {
+				l.emit(itemAttr)
+			}
+			l.next()
+			l.emit(itemAttrEnd)
+			return lexAfterTag
+			// }
 		case r == '[':
 			b2 += 1
 		case r == ']':

@@ -49,6 +49,170 @@ var (
 	mixin__var_block_end = ""
 )
 
+type Cfg struct {
+	GolangMode bool
+	TagBgn     string
+	TagEnd     string
+	TagVoid    string
+	TagArgEsc  string
+	TagArgUne  string
+	TagArgStr  string
+	TagArgAdd  string
+	TagArgBgn  string
+	TagArgEnd  string
+
+	CondIf     string
+	CondUnless string
+	CondCase   string
+	CondWhile  string
+	CondFor    string
+	CondEnd    string
+	CondForIf  string
+
+	CodeForElse   string
+	CodeLongcode  string
+	CodeBuffered  string
+	CodeUnescaped string
+	CodeElse      string
+	CodeElseIf    string
+	CodeCaseWhen  string
+	CodeCaseDef   string
+	CodeMixBlock  string
+
+	TextStr     string
+	TextComment string
+
+	MixinBgn         string
+	MixinEnd         string
+	MixinVarBgn      string
+	MixinVar         string
+	MixinVarRest     string
+	MixinVarEnd      string
+	MixinVarBlockBgn string
+	MixinVarBlock    string
+	MixinVarBlockEnd string
+}
+
+func Config(c Cfg) {
+	golang_mode = c.GolangMode
+	if c.TagBgn != "" {
+		tag__bgn = c.TagBgn
+	}
+	if c.TagEnd != "" {
+		tag__end = c.TagEnd
+	}
+	if c.TagVoid != "" {
+		tag__void = c.TagVoid
+	}
+	if c.TagArgEsc != "" {
+		tag__arg_esc = c.TagArgEsc
+	}
+	if c.TagArgUne != "" {
+		tag__arg_une = c.TagArgUne
+	}
+	if c.TagArgStr != "" {
+		tag__arg_str = c.TagArgStr
+	}
+	if c.TagArgAdd != "" {
+		tag__arg_add = c.TagArgAdd
+	}
+	if c.TagArgBgn != "" {
+		tag__arg_bgn = c.TagArgBgn
+	}
+	if c.TagArgEnd != "" {
+		tag__arg_end = c.TagArgEnd
+	}
+	if c.CondIf != "" {
+		cond__if = c.CondIf
+	}
+	if c.CondUnless != "" {
+		cond__unless = c.CondUnless
+	}
+	if c.CondCase != "" {
+		cond__case = c.CondCase
+	}
+	if c.CondWhile != "" {
+		cond__while = c.CondWhile
+	}
+	if c.CondFor != "" {
+		cond__for = c.CondFor
+	}
+	if c.CondEnd != "" {
+		cond__end = c.CondEnd
+	}
+	if c.CondForIf != "" {
+		cond__for_if = c.CondForIf
+	}
+	if c.CodeForElse != "" {
+		code__for_else = c.CodeForElse
+	}
+	if c.CodeLongcode != "" {
+		code__longcode = c.CodeLongcode
+	}
+	if c.CodeBuffered != "" {
+		code__buffered = c.CodeBuffered
+	}
+	if c.CodeUnescaped != "" {
+		code__unescaped = c.CodeUnescaped
+	}
+	if c.CodeElse != "" {
+		code__else = c.CodeElse
+	}
+	if c.CodeElseIf != "" {
+		code__else_if = c.CodeElseIf
+	}
+	if c.CodeCaseWhen != "" {
+		code__case_when = c.CodeCaseWhen
+	}
+	if c.CodeCaseDef != "" {
+		code__case_def = c.CodeCaseDef
+	}
+	if c.CodeMixBlock != "" {
+		code__mix_block = c.CodeMixBlock
+	}
+	if c.TextStr != "" {
+		text__str = c.TextStr
+	}
+	if c.TextComment != "" {
+		text__comment = c.TextComment
+	}
+	if c.MixinBgn != "" {
+		mixin__bgn = c.MixinBgn
+	}
+	if c.MixinEnd != "" {
+		mixin__end = c.MixinEnd
+	}
+	if c.MixinVarBgn != "" {
+		mixin__var_bgn = c.MixinVarBgn
+	}
+	if c.MixinVar != "" {
+		mixin__var = c.MixinVar
+	}
+	if c.MixinVarRest != "" {
+		mixin__var_rest = c.MixinVarRest
+	}
+	if c.MixinVarEnd != "" {
+		mixin__var_end = c.MixinVarEnd
+	}
+	if c.MixinVarBlockBgn != "" {
+		mixin__var_block_bgn = c.MixinVarBlockBgn
+	}
+	if c.MixinVarBlock != "" {
+		mixin__var_block = c.MixinVarBlock
+	}
+	if c.MixinVarBlockEnd != "" {
+		mixin__var_block_end = c.MixinVarBlockEnd
+	}
+}
+
+type Out struct {
+	Name, Args, Import string
+}
+
+var Go Out
+
+func ConfigOtputPHP() {}
+
 type itemType int8
 
 const (
@@ -84,6 +248,8 @@ const (
 	itemAttrEqualUn
 
 	itemFilter
+	itemFilterSubf
+	itemFilterArgs
 	itemFilterText
 
 	// itemKeyword // used only to delimit the keywords

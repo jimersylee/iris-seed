@@ -16,6 +16,8 @@ type Config struct {
 	ViewsPath      string `yaml:"ViewsPath"`      // 模板路径
 	RootStaticPath string `yaml:"RootStaticPath"` // 根路径下的静态文件目录
 	StaticPath     string `yaml:"StaticPath"`     // 静态文件路径
+	LogPath        string `yaml:"LogPath"`        //日志目录
+	LogLevel       string `yaml:"LogLevel"`       //日志等级
 
 	MySqlUrl  string `yaml:"MySqlUrl"`  // 数据库连接地址
 	RedisAddr string `yaml:"RedisAddr"` // redis_manager
