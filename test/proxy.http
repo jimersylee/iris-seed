@@ -17,8 +17,9 @@ POST http://localhost:17001/api/ip/create
 Content-Type: application/json
 
 {
-  "ip": "38.21.250.1",
-  "port": 60002
+  "ip": "156.237.30.85",
+  "port": 60002,
+  "hostname": "test-node"
 }
 
 ###

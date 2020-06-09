@@ -18,12 +18,15 @@ import (
 	"github.com/kataras/iris/middleware/recover"
 	"github.com/kataras/iris/mvc"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 	"io"
+	"net/http"
 	"os"
 	"time"
 )
 
 func RunApp() {
+	initPprof()
 	initConfig()
 	app := initIris()
 	initLog(app)
@@ -39,6 +42,17 @@ func RunApp() {
 	initTask()
 
 	_ = app.Run(iris.Addr(":"+config.Conf.Port), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)
+}
+
+// 初始化性能监控服务
+func initPprof() {
+	go func() {
+		ip := "0.0.0.0:6060"
+		if err := http.ListenAndServe(ip, nil); err != nil {
+			logrus.Errorf("start pprof failed on %s", ip)
+			os.Exit(1)
+		}
+	}()
 }
 
 func initConfig() {
@@ -89,13 +103,22 @@ func initIris() *iris.Application {
 func initLog(app *iris.Application) {
 
 	f := newLogFile()
-	app.Logger().SetLevel("debug")
+
+	level, err := logrus.ParseLevel(config.Conf.LogLevel)
+	if err != nil {
+		level = logrus.InfoLevel
+	}
+	logrus.SetLevel(level)
+	logrus.SetOutput(io.MultiWriter(f, os.Stdout))
+
+	app.Logger().SetLevel(config.Conf.LogLevel)
 	app.Logger().SetOutput(io.MultiWriter(f, os.Stdout))
 	app.Use(logger.New())
+
 }
 func todayFilename() string {
 	today := time.Now().Format("2006-01-02")
-	return "logs/" + today + ".log"
+	return config.Conf.LogPath + "/" + today + ".log"
 }
 
 // 创建打开文件

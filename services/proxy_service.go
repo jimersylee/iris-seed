@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -80,7 +79,7 @@ func (p *ProxyServiceImpl) Proxy(ctx iris.Context) {
 	if logrus.IsLevelEnabled(logrus.DebugLevel) {
 		all, _ := ioutil.ReadAll(res.Body)
 		body := string(all)
-		logrus.Info("body=======" + body)
+		logrus.Debugf("steam response:[%s]", body)
 		_, _ = ctx.ResponseWriter().WriteString(body)
 	} else {
 		io.Copy(ctx.ResponseWriter(), res.Body)
@@ -129,7 +128,7 @@ func (this *ProxyServiceImpl) _get(url string, params map[string]string, headers
 	//new request
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Println(err)
+		logrus.Errorf("new request failed,[%s]", err)
 		return nil, errors.New("new request is fail ")
 	}
 	//add params
@@ -193,6 +192,7 @@ func (this *ProxyServiceImpl) CheckIpStatus() {
 			this.ChangeIp(ip)
 		}
 	}
+	logrus.Info("finish to check ip status")
 }
 
 //定时删除无用的ip，N小时都没使用过的
@@ -202,4 +202,5 @@ func (this *ProxyServiceImpl) DeleteUselessIp() {
 	for _, v := range ips {
 		IpService.Delete(v.ID)
 	}
+	logrus.Infof("finish to delete useless ip,num=%d", len(ips))
 }
