@@ -6,7 +6,7 @@ var repositoryTmpl = template.Must(template.New("repository").Parse(`
 package repositories
 
 import (
-	"github.com/jimersylee/iris-seed/commons"	
+	"github.com/jimersylee/go-steam-proxy/commons"	
 	"{{.PkgName}}/models"
 	"github.com/jinzhu/gorm"
 )
@@ -92,8 +92,8 @@ var serviceTmpl = template.Must(template.New("service").Parse(`
 package services
 
 import (
-	"github.com/jimersylee/iris-seed/commons"
-	"github.com/jimersylee/iris-seed/commons/db"
+	"github.com/jimersylee/go-steam-proxy/commons"
+	"github.com/jimersylee/go-steam-proxy/commons/db"
 	"{{.PkgName}}/models"
 	"{{.PkgName}}/repositories"
 )
@@ -159,7 +159,7 @@ package api
 import (
 	"{{.PkgName}}/models"
 	"{{.PkgName}}/services"
-	"github.com/jimersylee/iris-seed/commons"
+	"github.com/jimersylee/go-steam-proxy/commons"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
 )

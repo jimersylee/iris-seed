@@ -3,7 +3,7 @@ package redis_manager
 import (
 	"fmt"
 	"github.com/go-redis/redis/v7"
-	"github.com/jimersylee/iris-seed/config"
+	"github.com/jimersylee/go-steam-proxy/config"
 	"github.com/sirupsen/logrus"
 )
 

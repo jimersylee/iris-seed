@@ -1,11 +1,11 @@
 package api
 
 import (
-	"github.com/jimersylee/iris-seed/commons"
-	"github.com/jimersylee/iris-seed/commons/response"
-	"github.com/jimersylee/iris-seed/models"
-	"github.com/jimersylee/iris-seed/services"
-	"github.com/jimersylee/iris-seed/services/cache"
+	"github.com/jimersylee/go-steam-proxy/commons"
+	"github.com/jimersylee/go-steam-proxy/commons/response"
+	"github.com/jimersylee/go-steam-proxy/models"
+	"github.com/jimersylee/go-steam-proxy/services"
+	"github.com/jimersylee/go-steam-proxy/services/cache"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
 )

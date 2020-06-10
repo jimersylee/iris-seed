@@ -1,4 +1,4 @@
-module github.com/jimersylee/iris-seed
+module github.com/jimersylee/go-steam-proxy
 
 require (
 	github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7 // indirect
@@ -12,6 +12,7 @@ require (
 	github.com/go-session/redis v3.0.1+incompatible
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/gorilla/schema v1.1.0 // indirect
+	github.com/influxdata/influxdb1-client v0.0.0-20200515024757-02f0bf5dbca3
 	github.com/iris-contrib/formBinder v5.0.0+incompatible // indirect
 	github.com/iris-contrib/go.uuid v2.0.0+incompatible
 	github.com/iris-contrib/middleware v0.0.0-20190720041902-5f3a20f489c4
