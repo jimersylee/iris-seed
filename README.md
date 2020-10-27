@@ -31,3 +31,23 @@ jimersylee@gmail.com
 - [ ] redis缓存整合
 - [ ] rocketmq 队列整合
 - [ ] mongo整合
+
+### 鸣谢
+
+特别感谢 [JetBrains](https://www.jetbrains.com/?from=iris-seed) 为本开源项目提供免费的 [IntelliJ GoLand](https://www.jetbrains.com/go/?from=iris-seed) 授权
+
+<p>
+ <a href="https://www.jetbrains.com/?from=ferry">
+   <img height="200" src="https://www.fdevops.com/wp-content/uploads/2020/09/1599213857-jetbrains-variant-4.png">
+ </a>
+</p>
+
+
+### License
+
+开源不易，请尊重作者的付出，感谢。
+再次声明，若是未联系作者直接将本系统使用于商业产品，出现的商业纠纷，本系统概不承担，感谢。
+
+[MIT](https://github.com/jimersylee/iris-seed/blob/master/LICENSE)
+
+Copyright (c) 2020 jimersylee
