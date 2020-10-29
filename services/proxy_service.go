@@ -3,8 +3,8 @@ package services
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/jimersylee/iris-seed/commons"
-	"github.com/jimersylee/iris-seed/services/cache"
+	"github.com/jimersylee/go-steam-proxy/commons"
+	"github.com/jimersylee/go-steam-proxy/services/cache"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -98,6 +98,7 @@ func (p *ProxyServiceImpl) fly(ip string, webUrl string) *http.Response {
 
 	request, _ := http.NewRequest("GET", webUrl, nil)
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
+	request.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	client := &http.Client{
 		Transport: tr,
 		Timeout:   time.Second * 10, //超时时间

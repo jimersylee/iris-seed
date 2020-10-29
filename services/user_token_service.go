@@ -2,9 +2,9 @@ package services
 
 import (
 	uuid "github.com/iris-contrib/go.uuid"
-	"github.com/jimersylee/iris-seed/commons/db"
-	"github.com/jimersylee/iris-seed/models"
-	"github.com/jimersylee/iris-seed/repositories"
+	"github.com/jimersylee/go-steam-proxy/commons/db"
+	"github.com/jimersylee/go-steam-proxy/models"
+	"github.com/jimersylee/go-steam-proxy/repositories"
 	"strings"
 )
 

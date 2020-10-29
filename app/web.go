@@ -5,14 +5,14 @@ import (
 	"github.com/betacraft/yaag/irisyaag"
 	"github.com/betacraft/yaag/yaag"
 	"github.com/iris-contrib/middleware/prometheus"
-	"github.com/jimersylee/iris-seed/commons/api_token"
-	"github.com/jimersylee/iris-seed/commons/db"
-	"github.com/jimersylee/iris-seed/commons/redis_manager"
-	"github.com/jimersylee/iris-seed/commons/web_session"
-	"github.com/jimersylee/iris-seed/config"
-	"github.com/jimersylee/iris-seed/models"
-	"github.com/jimersylee/iris-seed/services"
-	"github.com/jimersylee/iris-seed/web/api"
+	"github.com/jimersylee/go-steam-proxy/commons/api_token"
+	"github.com/jimersylee/go-steam-proxy/commons/db"
+	"github.com/jimersylee/go-steam-proxy/commons/redis_manager"
+	"github.com/jimersylee/go-steam-proxy/commons/web_session"
+	"github.com/jimersylee/go-steam-proxy/config"
+	"github.com/jimersylee/go-steam-proxy/models"
+	"github.com/jimersylee/go-steam-proxy/services"
+	"github.com/jimersylee/go-steam-proxy/web/api"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
@@ -56,7 +56,7 @@ func initPprof() {
 }
 
 func initConfig() {
-	var configFile = flag.String("config", "./iris-seed.yaml", "配置文件路径")
+	var configFile = flag.String("config", "./config.yaml", "配置文件路径")
 	config.InitConfig(*configFile)
 }
 

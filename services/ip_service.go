@@ -1,11 +1,11 @@
 package services
 
 import (
-	"github.com/jimersylee/iris-seed/commons"
-	"github.com/jimersylee/iris-seed/commons/db"
-	"github.com/jimersylee/iris-seed/models"
-	"github.com/jimersylee/iris-seed/repositories"
-	"github.com/jimersylee/iris-seed/services/cache"
+	"github.com/jimersylee/go-steam-proxy/commons"
+	"github.com/jimersylee/go-steam-proxy/commons/db"
+	"github.com/jimersylee/go-steam-proxy/models"
+	"github.com/jimersylee/go-steam-proxy/repositories"
+	"github.com/jimersylee/go-steam-proxy/services/cache"
 	"github.com/sirupsen/logrus"
 	"time"
 )
