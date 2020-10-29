@@ -1,4 +1,4 @@
-module github.com/jimersylee/go-steam-proxy
+module github.com/jimersylee/iris-seed
 
 require (
 	github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7 // indirect

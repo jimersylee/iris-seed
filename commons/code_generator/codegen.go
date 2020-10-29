@@ -3,14 +3,14 @@ package code_generator
 import (
 	"bytes"
 	"fmt"
-	"github.com/jimersylee/go-steam-proxy/commons"
+	"github.com/jimersylee/iris-seed/commons"
 	"os"
 	"path"
 	"reflect"
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/jimersylee/go-steam-proxy/commons/strcase"
+	"github.com/jimersylee/iris-seed/commons/strcase"
 )
 
 type GenerateStruct struct {

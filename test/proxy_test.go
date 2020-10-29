@@ -2,9 +2,9 @@ package test
 
 import (
 	"fmt"
-	"github.com/jimersylee/go-steam-proxy/app"
-	"github.com/jimersylee/go-steam-proxy/services"
-	"github.com/jimersylee/go-steam-proxy/services/cache"
+	"github.com/jimersylee/iris-seed/app"
+	"github.com/jimersylee/iris-seed/services"
+	"github.com/jimersylee/iris-seed/services/cache"
 	"testing"
 	"time"
 )

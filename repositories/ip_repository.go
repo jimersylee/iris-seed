@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"github.com/jimersylee/go-steam-proxy/commons"
-	"github.com/jimersylee/go-steam-proxy/models"
+	"github.com/jimersylee/iris-seed/commons"
+	"github.com/jimersylee/iris-seed/models"
 	"github.com/jinzhu/gorm"
 )
 

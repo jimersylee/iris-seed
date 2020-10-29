@@ -5,18 +5,16 @@ import (
 	"github.com/betacraft/yaag/irisyaag"
 	"github.com/betacraft/yaag/yaag"
 	"github.com/iris-contrib/middleware/prometheus"
-	"github.com/jimersylee/go-steam-proxy/commons/api_token"
-	"github.com/jimersylee/go-steam-proxy/commons/db"
-	"github.com/jimersylee/go-steam-proxy/commons/redis_manager"
-	"github.com/jimersylee/go-steam-proxy/commons/web_session"
-	"github.com/jimersylee/go-steam-proxy/config"
-	"github.com/jimersylee/go-steam-proxy/models"
-	"github.com/jimersylee/go-steam-proxy/services"
-	"github.com/jimersylee/go-steam-proxy/web/api"
+	"github.com/jimersylee/iris-seed/commons/api_token"
+	"github.com/jimersylee/iris-seed/commons/db"
+	"github.com/jimersylee/iris-seed/commons/redis_manager"
+	"github.com/jimersylee/iris-seed/commons/web_session"
+	"github.com/jimersylee/iris-seed/config"
+	"github.com/jimersylee/iris-seed/models"
+	"github.com/jimersylee/iris-seed/services"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
-	"github.com/kataras/iris/mvc"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -155,11 +153,6 @@ func initRouter(app *iris.Application) {
 
 	app.Any("/api/steamapi/{directory:path}", services.ProxyService.Proxy)
 	app.Any("/api/steamcommunity/{directory:path}", services.ProxyService.Proxy)
-
-	mvc.Configure(app.Party("/api"), func(application *mvc.Application) {
-		application.Party("/user").Handle(new(api.UserController))
-		application.Party("/ip").Handle(new(api.IpController))
-	})
 
 }
 

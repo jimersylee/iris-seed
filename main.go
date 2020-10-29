@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jimersylee/go-steam-proxy/app"
+	"github.com/jimersylee/iris-seed/app"
 	_ "net/http/pprof"
 )
 

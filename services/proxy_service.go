@@ -3,8 +3,8 @@ package services
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/jimersylee/go-steam-proxy/commons"
-	"github.com/jimersylee/go-steam-proxy/services/cache"
+	"github.com/jimersylee/iris-seed/commons"
+	"github.com/jimersylee/iris-seed/services/cache"
 	"github.com/kataras/iris"
 	"github.com/sirupsen/logrus"
 	"io"

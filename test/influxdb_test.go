@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/jimersylee/go-steam-proxy/services"
+	"github.com/jimersylee/iris-seed/services"
 	"testing"
 )
 

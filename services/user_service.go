@@ -2,9 +2,9 @@ package services
 
 import (
 	"errors"
-	"github.com/jimersylee/go-steam-proxy/commons/db"
-	"github.com/jimersylee/go-steam-proxy/models"
-	"github.com/jimersylee/go-steam-proxy/repositories"
+	"github.com/jimersylee/iris-seed/commons/db"
+	"github.com/jimersylee/iris-seed/models"
+	"github.com/jimersylee/iris-seed/repositories"
 )
 
 //UserService处理用户数据模型的CRUID操作，

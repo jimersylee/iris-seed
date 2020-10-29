@@ -3,7 +3,7 @@ package commons
 import (
 	"github.com/kataras/iris"
 
-	"github.com/jimersylee/go-steam-proxy/commons/strcase"
+	"github.com/jimersylee/iris-seed/commons/strcase"
 )
 
 type QueryParams struct {

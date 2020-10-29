@@ -1,6 +1,6 @@
 package response
 
-import "github.com/jimersylee/go-steam-proxy/commons"
+import "github.com/jimersylee/iris-seed/commons"
 
 type WebApiRes struct {
 	ErrorCode int         `json:"errorCode"`

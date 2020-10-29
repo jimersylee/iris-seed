@@ -4,7 +4,7 @@ import (
 	context2 "context"
 	"github.com/go-session/redis"
 	"github.com/go-session/session"
-	"github.com/jimersylee/go-steam-proxy/config"
+	"github.com/jimersylee/iris-seed/config"
 	"github.com/kataras/iris/context"
 	"github.com/sirupsen/logrus"
 	"net/http"

@@ -2,8 +2,8 @@ package cache
 
 import (
 	"github.com/go-redis/redis/v7"
-	"github.com/jimersylee/go-steam-proxy/commons/redis_manager"
-	"github.com/jimersylee/go-steam-proxy/entities"
+	"github.com/jimersylee/iris-seed/commons/redis_manager"
+	"github.com/jimersylee/iris-seed/entities"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"

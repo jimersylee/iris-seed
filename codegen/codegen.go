@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/jimersylee/go-steam-proxy/commons/code_generator"
-	"github.com/jimersylee/go-steam-proxy/models"
+	"github.com/jimersylee/iris-seed/commons/code_generator"
+	"github.com/jimersylee/iris-seed/models"
 )
 
 func main() {
-	code_generator.Generate("./", "github.com/jimersylee/go-steam-proxy", code_generator.GetGenerateStruct(&models.Ip{}))
+	code_generator.Generate("./", "github.com/jimersylee/iris-seed", code_generator.GetGenerateStruct(&models.Ip{}))
 }
