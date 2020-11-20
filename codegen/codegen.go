@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	code_generator.Generate("./", "github.com/jimersylee/iris-seed", code_generator.GetGenerateStruct(&models.Ip{}))
+	code_generator.Generate("./", "github.com/jimersylee/iris-seed", code_generator.GetGenerateStruct(&models.LoginHistory{}))
 }
