@@ -4,4 +4,5 @@ var Models = []interface{}{
 	&User{},
 	&UserToken{},
 	&LoginHistory{},
+	&Articles{},
 }
