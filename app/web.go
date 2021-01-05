@@ -2,24 +2,27 @@ package app
 
 import (
 	"flag"
+	"fmt"
 	"github.com/betacraft/yaag/irisyaag"
 	"github.com/betacraft/yaag/yaag"
 	"github.com/iris-contrib/middleware/prometheus"
+	"github.com/jimersylee/iris-seed/commons"
 	"github.com/jimersylee/iris-seed/commons/api_token"
 	"github.com/jimersylee/iris-seed/commons/db"
 	"github.com/jimersylee/iris-seed/commons/redis_manager"
 	"github.com/jimersylee/iris-seed/commons/web_session"
 	"github.com/jimersylee/iris-seed/config"
 	"github.com/jimersylee/iris-seed/models"
-	"github.com/jimersylee/iris-seed/services"
+	"github.com/jimersylee/iris-seed/web/api"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
-	"github.com/kataras/iris/middleware/recover"
+	"github.com/kataras/iris/mvc"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -74,7 +77,11 @@ func initDataSource(app *iris.Application) {
 //初始化iris框架
 func initIris() *iris.Application {
 	app := iris.New()
-	app.Use(recover.New())
+
+	app.Use(Crossdomain)
+	//app.Use(recover.New())
+	// 使用自定义的recover,实现自定义的错误处理,不管什么错误都返回一个标准的json格式
+	app.Use(customRecover)
 
 	app.OnErrorCode(iris.StatusNotFound, func(ctx iris.Context) {
 		_, _ = ctx.Writef("Not Found")
@@ -95,6 +102,14 @@ func initIris() *iris.Application {
 	app.StaticWeb("/public", "./web/public")
 
 	return app
+}
+
+func Crossdomain(c iris.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Credentials", "true")
+	c.Header("Access-Control-Request-Method", "GET,POST,PUT,DELETE,OPTIONS")
+	c.Header("Access-Control-Allow-Header", "*")
+	c.Next()
 }
 
 //初始化日志
@@ -151,8 +166,9 @@ func initRouter(app *iris.Application) {
 	})
 	app.Get("/metrics", iris.FromStd(promhttp.Handler()))
 
-	app.Any("/api/steamapi/{directory:path}", services.ProxyService.Proxy)
-	app.Any("/api/steamcommunity/{directory:path}", services.ProxyService.Proxy)
+	mvc.Configure(app.Party("/api/v1"), func(m *mvc.Application) {
+		m.Party("/article").Handle(new(api.ArticleController))
+	})
 
 }
 
@@ -171,9 +187,48 @@ func initTask() {
 	ticker := time.NewTicker(time.Second * 60)
 	go func() {
 		for range ticker.C {
-			services.ProxyService.AllCheckTask()
+			//services.ProxyService.AllCheckTask()
 		}
 		ch <- 1
 	}()
 
+}
+
+func customRecover(ctx iris.Context) {
+	defer func() {
+		if err := recover(); err != nil {
+			if ctx.IsStopped() {
+				return
+			}
+			var stacktrace string
+			for i := 1; ; i++ {
+				_, f, l, got := runtime.Caller(i)
+				if !got {
+					break
+				}
+				stacktrace += fmt.Sprintf("%s:%d\n", f, l)
+			}
+
+			ctx.StatusCode(200)
+			if ex, ok := err.(*commons.ErrorCode); ok {
+				//如果是业务异常,则返回业务异常信息
+				_, _ = ctx.JSON(ex.Error())
+				ctx.Application().Logger().Printf("[%d] %s\n%s", ex.Code, ex.Message, stacktrace)
+			} else {
+				//如果不是认为抛出的异常,统一包装为系统异常
+				_, _ = ctx.JSON(commons.ErrorCodeSystem)
+				errMsg := fmt.Sprintf("错误信息: %s", err)
+				// when stack finishes
+				logMessage := fmt.Sprintf("从错误中回复：('%s')\n", ctx.HandlerName())
+				logMessage += errMsg + "\n"
+				logMessage += fmt.Sprintf("\n%s", stacktrace)
+				// 打印错误⽇志
+				ctx.Application().Logger().Warn(logMessage)
+			}
+
+			// 返回错误信息
+			ctx.StopExecution()
+		}
+	}()
+	ctx.Next()
 }
