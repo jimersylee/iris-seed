@@ -160,8 +160,8 @@ import (
 	"{{.PkgName}}/models"
 	"{{.PkgName}}/services"
 	"github.com/jimersylee/iris-seed/commons"
+	"github.com/jimersylee/iris-seed/commons/response"
 	"github.com/kataras/iris"
-	"github.com/sirupsen/logrus"
 )
 
 type {{.Name}}Controller struct {
