@@ -1,10 +1,11 @@
 package commons
 
 import (
-	"strconv"
+	"encoding/json"
 )
 
 var (
+	ErrorCodeSystem         = NewError(1000, "系统异常")
 	ErrorCodeNotLogin       = NewError(1, "请先登录")
 	ErrorCodeParse          = NewError(2, "解析错误")
 	ErrorCodeNotFound       = NewError(3, "未找到")
@@ -34,5 +35,6 @@ type ErrorCode struct {
 }
 
 func (e *ErrorCode) Error() string {
-	return strconv.Itoa(e.Code) + ": " + e.Message
+	marshal, _ := json.Marshal(e)
+	return string(marshal)
 }

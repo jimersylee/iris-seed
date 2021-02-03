@@ -24,6 +24,7 @@ func JsonData(data interface{}) *WebApiRes {
 		ErrorCode: 0,
 		Data:      data,
 		Success:   true,
+		Message:   "success",
 	}
 }
 
