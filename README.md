@@ -27,10 +27,9 @@ jimersylee@gmail.com
 
 # 功能
 - [x] 注册登录
-- [ ] 管理后台
-- [ ] redis缓存整合
-- [ ] rocketmq 队列整合
-- [ ] mongo整合
+- [ ] 推荐系统
+- [x] redis缓存整合
+- [x] MySQL
 
 ### 鸣谢
 
@@ -50,4 +49,4 @@ jimersylee@gmail.com
 
 [MIT](https://github.com/jimersylee/iris-seed/blob/master/LICENSE)
 
-Copyright (c) 2020 jimersylee
+Copyright (c) 2022 jimersylee
