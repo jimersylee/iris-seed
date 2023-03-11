@@ -19,7 +19,8 @@ vditor (https://github.com/b3log/vditor) Markdown 编辑器
 
 ### hot reload
 ```shell script
-go get -u github.com/beego/bee
+go install -u github.com/beego/bee
+go mod vendor
 bee run 
 ```
 ### Author
@@ -49,4 +50,4 @@ jimersylee@gmail.com
 
 [MIT](https://github.com/jimersylee/iris-seed/blob/master/LICENSE)
 
-Copyright (c) 2022 jimersylee
+Copyright (c) 2023 jimersylee
