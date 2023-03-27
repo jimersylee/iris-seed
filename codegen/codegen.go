@@ -6,8 +6,8 @@ import (
 )
 
 /**
- * 这是 iris-seed 代码生成器
+ * easy to generator some code
  */
 func main() {
-	code_generator.Generate("./", "github.com/jimersylee/iris-seed", code_generator.GetGenerateStruct(&models.Comment{}))
+	code_generator.Generate("./", "github.com/jimersylee/iris-seed", code_generator.GetGenerateStruct(&models.ScoreHistory{}))
 }
