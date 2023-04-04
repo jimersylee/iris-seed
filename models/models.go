@@ -6,4 +6,6 @@ var Models = []interface{}{
 	&LoginHistory{},
 	&Article{},
 	&Comment{},
+	&ScoreHistory{},
+	&PaymentHistory{},
 }
