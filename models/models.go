@@ -8,4 +8,5 @@ var Models = []interface{}{
 	&Comment{},
 	&ScoreHistory{},
 	&PaymentHistory{},
+	&CommentArchive{},
 }
