@@ -48,12 +48,10 @@ func (this *AdminController) PostUpdate() *response.WebApiRes {
 	if t == nil {
 		return response.JsonErrorCode(commons.ErrorCodeNotFound)
 	}
-
 	err = this.Ctx.ReadForm(t)
 	if err != nil {
 		return response.JsonErrorMsg(err.Error())
 	}
-
 	err = services.AdminService.Update(t)
 	if err != nil {
 		return response.JsonErrorMsg(err.Error())
