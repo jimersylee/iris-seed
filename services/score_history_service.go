@@ -1,4 +1,3 @@
-
 package services
 
 import (
@@ -11,7 +10,7 @@ import (
 var ScoreHistoryService = newScoreHistoryService()
 
 func newScoreHistoryService() *scoreHistoryService {
-	return &scoreHistoryService {}
+	return &scoreHistoryService{}
 }
 
 type scoreHistoryService struct {
@@ -49,15 +48,6 @@ func (this *scoreHistoryService) Update(t *models.ScoreHistory) error {
 	return repositories.ScoreHistoryRepository.Update(db.GetDB(), t)
 }
 
-func (this *scoreHistoryService) Updates(id int64, columns map[string]interface{}) error {
-	return repositories.ScoreHistoryRepository.Updates(db.GetDB(), id, columns)
-}
-
-func (this *scoreHistoryService) UpdateColumn(id int64, name string, value interface{}) error {
-	return repositories.ScoreHistoryRepository.UpdateColumn(db.GetDB(), id, name, value)
-}
-
 func (this *scoreHistoryService) Delete(id int64) {
 	repositories.ScoreHistoryRepository.Delete(db.GetDB(), id)
 }
-
