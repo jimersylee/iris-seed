@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//client
+// client
 var client *redis.Client
 
 func InitRedisManager() {
@@ -24,9 +24,7 @@ func InitRedisManager() {
 	logrus.Info(client)
 }
 
-/**
-获取redis客户端
-*/
+// GetClient /**
 func GetClient() *redis.Client {
 	if client == nil {
 		InitRedisManager()
