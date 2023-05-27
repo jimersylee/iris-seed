@@ -60,7 +60,7 @@ func GetApiCurrentUserByRequest(r *http.Request) int64 {
 	if len(token) <= 0 {
 		return 0
 	}
-	//有token,根据token去查用户
+	//has a token, use token to find user
 	userId := cache.UserTokenCache.GetUserIdByToken(token)
 	return userId
 }
