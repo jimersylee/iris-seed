@@ -1,68 +1,60 @@
-package bloomfilter
+package main
 
 import (
+	"fmt"
 	"hash/fnv"
-	"sync"
-)
-
-//实现一个布隆过滤器
-
-const (
-	DefaultSize = 1000000
-	Hashes      = 1
 )
 
 type BloomFilter struct {
-	set    []byte
-	hashes [Hashes]func(data []byte) uint32
-	size   uint
-	mutex  sync.RWMutex
+	bitArray         []bool
+	numHashFunctions int
 }
 
-func NewBloomFilter() *BloomFilter {
-	bf := &BloomFilter{}
-	bf.set = make([]byte, DefaultSize)
-	bf.hashes = [Hashes]func(data []byte) uint32{
-		fnvHash1,
+func NewBloomFilter(size int, numHashFunctions int) *BloomFilter {
+	return &BloomFilter{
+		bitArray:         make([]bool, size),
+		numHashFunctions: numHashFunctions,
 	}
-	bf.size = uint(len(bf.set)) * 8
-	return bf
 }
 
-func fnvHash1(data []byte) uint32 {
-	h := fnv.New32a()
-	_, err := h.Write(data)
-	if err != nil {
-		return 0
+func (bf *BloomFilter) Add(item string) {
+	for i := 0; i < bf.numHashFunctions; i++ {
+		hash := hash(item, i) % len(bf.bitArray)
+		bf.bitArray[hash] = true
 	}
-	return h.Sum32()
 }
 
-func (bf *BloomFilter) Add(data []byte) {
-	bf.mutex.Lock()
-	defer bf.mutex.Unlock()
-
-	for _, hash := range bf.hashes {
-		index := hash(data) % bf.size
-		byteIndex := index / 8
-		bitIndex := byte(index % 8)
-		bf.set[byteIndex] |= 1 << bitIndex
-
-	}
-
-}
-
-func (bf *BloomFilter) MayExists(data []byte) bool {
-	bf.mutex.RLock()
-	defer bf.mutex.RUnlock()
-
-	for _, hash := range bf.hashes {
-		index := hash(data) % bf.size
-		byteIndex := index / 8
-		bitIndex := byte(index % 8)
-		if bf.set[byteIndex]&(1<<bitIndex) == 0 {
+func (bf *BloomFilter) Contains(item string) bool {
+	for i := 0; i < bf.numHashFunctions; i++ {
+		hash := hash(item, i) % len(bf.bitArray)
+		if !bf.bitArray[hash] {
 			return false
 		}
 	}
 	return true
+}
+
+func hash(item string, seed int) int {
+	hasher := fnv.New32a()
+	hasher.Write([]byte(item))
+	hashValue := hasher.Sum32()
+	// 1001^1111=0110 same return 0, else return 1
+	return int(hashValue) ^ seed
+}
+
+func main() {
+	filterSize := 1000
+	numHashFunctions := 5
+	bloomFilter := NewBloomFilter(filterSize, numHashFunctions)
+
+	// 添加一些元素到布隆过滤器中
+	items := []string{"apple", "banana", "cherry", "date"}
+	for _, item := range items {
+		bloomFilter.Add(item)
+	}
+
+	// 检查元素是否存在于布隆过滤器中
+	fmt.Println("apple exists:", bloomFilter.Contains("apple"))   // 应返回 true
+	fmt.Println("grape exists:", bloomFilter.Contains("grape"))   // 应返回 false
+	fmt.Println("cherry exists:", bloomFilter.Contains("cherry")) // 应返回 true
 }
