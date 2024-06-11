@@ -37,8 +37,8 @@ jimersylee@gmail.com
 特别感谢 [JetBrains](https://www.jetbrains.com/?from=iris-seed) 为本开源项目提供免费的 [IntelliJ GoLand](https://www.jetbrains.com/go/?from=iris-seed) 授权
 
 <p>
- <a href="https://www.jetbrains.com/?from=ferry">
-   <img height="200" src="https://www.fdevops.com/wp-content/uploads/2020/09/1599213857-jetbrains-variant-4.png">
+ <a href="https://www.jetbrains.com/?from=iris-seed">
+   <img height="200" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png?_gl=1*1wwtu9i*_ga*MjExMTkzMzczMC4xNzEyNTgwNTM5*_ga_9J976DJZ68*MTcxODA4NTQ1Mi43LjEuMTcxODA4NTQ1NC4wLjAuMA..&_ga=2.248620676.2047147166.1718070132-2111933730.1712580539">
  </a>
 </p>
 
