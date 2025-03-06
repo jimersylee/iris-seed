@@ -10,4 +10,6 @@ var Models = []interface{}{
 	&PaymentHistory{},
 	&CommentArchive{},
 	&Admin{},
+	&Role{},
+	&Like{},
 }
