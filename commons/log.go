@@ -62,7 +62,7 @@ func InitLog() error {
 			project:  Conf.Log.SLS.Project,
 			logstore: Conf.Log.SLS.Logstore,
 			topic:    Conf.Log.SLS.Topic,
-			source:   GetIntranetIp(),
+			source:   "",
 		}
 
 		// 设置日志格式化
