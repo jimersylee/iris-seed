@@ -1,10 +1,12 @@
-package main
+package test
 
 import (
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"reflect"
+	"testing"
 	"time"
 )
 
@@ -30,7 +32,6 @@ func registerToNacos() {
 			Scheme: "http",
 		},
 	}
-
 	namingClient, err := clients.NewNamingClient(vo.NacosClientParam{
 		ClientConfig:  &clientConfig,
 		ServerConfigs: serverConfigs,
@@ -57,4 +58,32 @@ func registerToNacos() {
 		fmt.Println("register to nacos success")
 	}
 
+}
+func TestNewDefaultClientConfig(t *testing.T) {
+	expected := constant.ClientConfig{
+		NamespaceId:         "",
+		TimeoutMs:           5000,
+		NotLoadCacheAtStart: true,
+		LogDir:              "/tmp/nacos/log",
+		CacheDir:            "/tmp/nacos/cache",
+		LogLevel:            "debug",
+	}
+
+	actual := NewDefaultClientConfig()
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Expected config %+v, but got %+v", expected, actual)
+	}
+}
+
+// NewDefaultClientConfig creates a new client config with default settings.
+func NewDefaultClientConfig() constant.ClientConfig {
+	return constant.ClientConfig{
+		NamespaceId:         "",
+		TimeoutMs:           5000,
+		NotLoadCacheAtStart: true,
+		LogDir:              "/tmp/nacos/log",
+		CacheDir:            "/tmp/nacos/cache",
+		LogLevel:            "debug",
+	}
 }
