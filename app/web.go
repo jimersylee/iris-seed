@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/betacraft/yaag/irisyaag"
 	"github.com/betacraft/yaag/yaag"
-	"github.com/iris-contrib/middleware/prometheus"
 	"github.com/jimersylee/iris-seed/commons"
 	"github.com/jimersylee/iris-seed/commons/api_token"
 	"github.com/jimersylee/iris-seed/commons/db"
@@ -31,7 +30,6 @@ func RunApp() {
 	initConfig()
 	app := initIris()
 	initLog(app)
-	initPrometheus(app)
 	//initDoc(app)
 	initRouter(app)
 	initDataSource(app)
@@ -61,7 +59,7 @@ func initConfig() {
 	config.InitConfig(*configFile)
 }
 
-//初始化数据源
+// 初始化数据源
 func initDataSource(app *iris.Application) {
 	// 连接数据库
 	db.OpenDB(&db.DBConfiguration{
@@ -74,7 +72,7 @@ func initDataSource(app *iris.Application) {
 	})
 }
 
-//初始化iris框架
+// 初始化iris框架
 func initIris() *iris.Application {
 	app := iris.New()
 
@@ -112,7 +110,7 @@ func Crossdomain(c iris.Context) {
 	c.Next()
 }
 
-//初始化日志
+// 初始化日志
 func initLog(app *iris.Application) {
 
 	f := newLogFile()
@@ -145,15 +143,7 @@ func newLogFile() *os.File {
 	return f
 }
 
-//初始化监控
-//init monitor
-func initPrometheus(app *iris.Application) {
-	//集成prometheus监控开始,访问/metrics
-	m := prometheus.New("go-bbs", 300, 1200, 5000)
-	app.Use(m.ServeHTTP)
-}
-
-//初始化路由
+// 初始化路由
 func initRouter(app *iris.Application) {
 	app.Handle("GET", "/", func(ctx iris.Context) {
 		_, _ = ctx.WriteString("Hello world!")
@@ -172,7 +162,7 @@ func initRouter(app *iris.Application) {
 
 }
 
-//初始化文档
+// 初始化文档
 func initDoc(app *iris.Application) {
 	//api文档自动生成开始
 	yaag.Init(&yaag.Config{On: true, DocTitle: "iris-seed", DocPath: "apidoc.html", BaseUrls: map[string]string{"Production": "", "Stage": ""}})

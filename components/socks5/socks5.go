@@ -1,10 +1,10 @@
 package socks5
 
 import (
-	. "choco-proxy/app/common"
 	"context"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
 	"os"
@@ -66,17 +66,16 @@ func (s *ServerSocks5) Run() error {
 	if err != nil {
 		return err
 	}
-	Log.Infof("run socks5 proxy successful on %s", address)
 	for {
 		con, err := listen.Accept()
 		if err != nil {
-			Log.Fatal("connection failure from %s: %s\n", con.RemoteAddr(), err)
+			log.Fatal("connection failure from %s: %s\n", con.RemoteAddr(), err)
 		}
 		go func() {
 			defer con.Close()
 			err = s.handleConnection(con, s.Config)
 			if err != nil {
-				Log.Warn("handle connection error: %s\n", err)
+				log.Warn("handle connection error: %s\n", err)
 			}
 		}()
 	}
@@ -196,7 +195,7 @@ func (s *ServerSocks5) handleTCP(conn io.ReadWriter, message *ClientRequestMessa
 	// 与目标地址建立 tcp 连接，并且设置超时时间
 	targetConn, err := net.DialTimeout("tcp", address, s.Config.TCPTimeout)
 	if err != nil {
-		Log.Warnf("connection Erro %s", err)
+		log.Warnf("connection Erro %s", err)
 		// 根据错误来写这个错误的返回类型
 		WriteRequestFailureMessage(conn, ReplyConnectionRefused)
 		return err
