@@ -3,6 +3,12 @@ package app
 import (
 	"flag"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"runtime"
+	"time"
+
 	"github.com/betacraft/yaag/irisyaag"
 	"github.com/betacraft/yaag/yaag"
 	"github.com/jimersylee/iris-seed/commons"
@@ -16,13 +22,7 @@ import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/mvc"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
-	"io"
-	"net/http"
-	"os"
-	"runtime"
-	"time"
 )
 
 func RunApp() {
@@ -154,7 +154,6 @@ func initRouter(app *iris.Application) {
 	app.Get("/hello", func(ctx iris.Context) {
 		_, _ = ctx.JSON(iris.Map{"message": "hello"})
 	})
-	app.Get("/metrics", iris.FromStd(promhttp.Handler()))
 
 	mvc.Configure(app.Party("/api/v1"), func(m *mvc.Application) {
 		m.Party("/article").Handle(new(api.ArticleController))
